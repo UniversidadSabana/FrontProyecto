@@ -1,5 +1,4 @@
 import React from 'react';
-
 const Login = () => {
   return (
     <div className="flex items-center justify-center h-screen bg-blue-700 font-inter m-0 p-0">
