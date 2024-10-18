@@ -5,8 +5,8 @@ import { Image } from 'lucide-react'; // Importa el icono desde Lucide
 const Welcome = () => {
     const navigate = useNavigate();
     return (
-    <div className="flex items-center justify-center h-screen bg-blue-700 font-inter">
-      <div className="bg-white p-10 rounded-3xl shadow-lg flex gap-10 items-center w-[80%] max-w-4xl">
+    <div className="flex items-center justify-center h-screen bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] font-inter">
+      <div className="bg-white px-10 py-16 rounded-3xl shadow-lg flex gap-10 items-center w-[50%] max-w-3xl">
         {/* Dividiendo el espacio en dos mitades */}
         <div className="w-1/2 text-left">
           {/* Textos y botones a la izquierda */}
@@ -14,7 +14,7 @@ const Welcome = () => {
           <p className="text-lg text-gray-600 mb-6">
             Conectamos estudiantes para un transporte universitario seguro y eficiente. ¡Únete a nuestra comunidad hoy!
           </p>
-          <div className="flex gap-4">
+          <div className="flex flex-col gap-4">
             <button 
              onClick={() => navigate('/login')}
             className="bg-orange-500 text-white py-2 px-6 rounded-lg transform transition-transform duration-300 hover:scale-110">
@@ -22,7 +22,7 @@ const Welcome = () => {
             </button>
             <button
             onClick={() => navigate('/register')} // Navegar a la página de registro            
-            className="bg-white text-blue-800 border-2 border-blue-800 py-2 px-6 rounded-lg transform transition-transform duration-300 hover:scale-110">
+            className="bg-white text-blue-800 border border-blue-800 py-2 px-6 rounded-lg transform transition-transform duration-300 hover:scale-110">
               Registrarse
             </button>
           </div>
