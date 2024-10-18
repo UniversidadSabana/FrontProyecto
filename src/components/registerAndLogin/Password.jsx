@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AuthLayout from './AuthLayout';
-import CustomInput from './CustomInput';
-import CustomButton from './CustomButton';
-import LinkText from './LinkText';
+import AuthLayout from '../reusable/AuthLayout';
+import CustomInput from '../reusable/CustomInput';
+import CustomButton from '../reusable/CustomButton';
+import LinkText from '../reusable/LinkText';
 import { useUser } from './UserContext';
 
 const Password = () => {

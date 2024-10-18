@@ -7,6 +7,7 @@ import ProfileSetup from './components/registerAndLogin/ProfileSetup';
 import AddVehicle from './components/registerAndLogin/AddVehicle';
 import UserProvider  from './components/registerAndLogin/UserContext';
 import Login from './components/registerAndLogin/Login';
+import TripList from './components/mainPage/TripList';
 function App() {
   return (
     <UserProvider>
@@ -18,6 +19,7 @@ function App() {
           <Route path="/password" element={<Password />} />
           <Route path="/profile-setup" element={<ProfileSetup />} />
           <Route path="/add-vehicle" element={<AddVehicle />} />
+          <Route path="/trip-list" element={<TripList />} />
         </Routes>
       </Router>
     </UserProvider>

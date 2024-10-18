@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import CustomInput from './CustomInput';
-import CustomButton from './CustomButton';
+import React, { useState, useEffect } from 'react';
+import CustomInput from '../reusable/CustomInput';
+import CustomButton from '../reusable/CustomButton';
 import { Camera } from 'lucide-react';
 import { useUser } from './UserContext';  // Importamos el contexto de usuario
-import Modal from './Modal'; // Importamos el componente del Modal
+import Modal from '../reusable/Modal'; // Importamos el componente del Modal
+import { useNavigate } from 'react-router-dom';
 
 const AddVehicle = () => {
   const { user } = useUser();  // Obtenemos el user desde el contexto
@@ -17,6 +18,15 @@ const AddVehicle = () => {
   const [error, setError] = useState('');
   const [modalMessage, setModalMessage] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const navigate = useNavigate();
+
+  // Verificar si el usuario está presente, si no, redirigir a '/'
+  useEffect(() => {
+    if (!user || !user.id) {
+      navigate('/');
+    }
+  }, [user, navigate]);
 
   const handleImageChange = (e, setImage) => {
     const file = e.target.files[0];
@@ -73,6 +83,9 @@ const AddVehicle = () => {
       // Mostrar modal de éxito
       setModalMessage('El vehículo se ha registrado correctamente.');
       setIsModalOpen(true);
+
+      // Redirigir después de cerrar el modal
+      setTimeout(() => navigate('/login'), 2000); // Redirige tras cerrar el modal
 
     } catch (error) {
       console.error('Error al enviar los datos:', error);
