@@ -2,16 +2,17 @@ import React, { useState, useEffect } from 'react';
 import CustomInput from '../reusable/CustomInput';
 import CustomButton from '../reusable/CustomButton';
 import { Camera } from 'lucide-react';
-import { useUser } from './UserContext';  // Importamos el contexto de usuario
-import Modal from '../reusable/Modal'; // Importamos el componente del Modal
+import { useUser } from './UserContext';
+import Modal from '../reusable/Modal';
 import { useNavigate } from 'react-router-dom';
+import imageCompression from 'browser-image-compression';  // Importa la biblioteca de compresión
 
 const AddVehicle = () => {
-  const { user } = useUser();  // Obtenemos el user desde el contexto
+  const { user } = useUser();
   const [vehicleImage, setVehicleImage] = useState(null);
   const [soatImage, setSoatImage] = useState(null);
   const [plate, setPlate] = useState('');
-  const [capacity, setCapacity] = useState(1); // Capacidad por defecto de 1
+  const [capacity, setCapacity] = useState(1);
   const [brand, setBrand] = useState('');
   const [model, setModel] = useState('');
   const [color, setColor] = useState('');
@@ -28,14 +29,25 @@ const AddVehicle = () => {
     }
   }, [user, navigate]);
 
-  const handleImageChange = (e, setImage) => {
+  // Función para comprimir y manejar la carga de la imagen
+  const handleImageChange = async (e, setImage) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImage(reader.result);
-      };
-      reader.readAsDataURL(file);
+      try {
+        const options = {
+          maxSizeMB: 1, // Tamaño máximo de imagen a 1MB
+          maxWidthOrHeight: 1920, // Redimensiona si es necesario
+          useWebWorker: true, // Habilitar para mejorar el rendimiento
+        };
+        const compressedFile = await imageCompression(file, options);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImage(reader.result); // Convertimos la imagen comprimida a base64
+        };
+        reader.readAsDataURL(compressedFile); // Leer la imagen comprimida
+      } catch (error) {
+        console.error('Error al comprimir la imagen:', error);
+      }
     }
   };
 
@@ -46,9 +58,8 @@ const AddVehicle = () => {
       return;
     }
 
-    // Agregar el userId desde el contexto
     const vehicleData = {
-      userId: user.id, 
+      userId: user.id,
       carPlate: plate,
       capacity,
       brand,
