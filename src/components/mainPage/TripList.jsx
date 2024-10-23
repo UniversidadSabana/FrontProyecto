@@ -18,7 +18,7 @@ const TripList = () => {
         return;
       }
 
-      const response = await fetch('http://localhost:5000/api/trips', {
+      const response = await fetch('https://wheels-backend-rafaelsavas-projects.vercel.app/api/trips', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
