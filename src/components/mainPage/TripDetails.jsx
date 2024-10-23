@@ -28,14 +28,7 @@ const TripDetails = () => {
         const data = await response.json();
         console.log('Respuesta completa del backend:', data); // Verificar la estructura completa de la respuesta
 
-        // Intenta acceder a los datos de viaje de manera flexible
-        if (data.trip) {
-          setTrip(data.trip); // Asignar los datos del viaje
-        } else if (data) {
-          setTrip(data); // Si no está en `trip`, intenta usar directamente el objeto
-        } else {
-          throw new Error('La estructura de la respuesta no es la esperada');
-        }
+        setTrip(data);
 
       } catch (err) {
         setError(err.message); // Captura y muestra cualquier error que ocurra

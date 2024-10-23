@@ -4,6 +4,8 @@ import { Image } from 'lucide-react'; // Importa el icono desde Lucide
 
 const Welcome = () => {
     const navigate = useNavigate();
+    
+    console.log("Componente Welcome se ha montado");
     return (
     <div className="flex items-center justify-center h-screen bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] font-inter">
       <div className="bg-white px-10 py-16 rounded-3xl shadow-lg flex gap-10 items-center w-[50%] max-w-3xl">

@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useUser } from '../registerAndLogin/UserContext'; // Asume que tienes un UserContext para gestionar el estado del usuario
 
 const Sidebar = ({ onClose }) => {
+  const { user } = useUser();
   const [profile, setProfile] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -25,6 +29,16 @@ const Sidebar = ({ onClose }) => {
       onClose();
     }
   };
+
+  // Función para redirigir al perfil según el rol del usuario
+  const handleProfileClick = () => {
+    if (user.isDriver) {
+      navigate('/profile-setup'); // Si es conductor, redirige a la configuración del conductor
+    } else {
+      navigate('/profile-passenger'); // Si es pasajero, redirige a la configuración del pasajero
+    }
+  };
+  
 
   if (!profile) {
     return <p>Cargando...</p>;
@@ -55,10 +69,10 @@ const Sidebar = ({ onClose }) => {
             <li className="py-2 text-blue-700 font-semibold cursor-pointer">
               Ver viajes disponibles
             </li>
-            <li className="py-2 text-blue-700 font-semibold cursor-pointer">
+            <li onClick={() => navigate('/trip-list')} className="py-2 text-blue-700 font-semibold cursor-pointer">
               Gestionar Viajes
             </li>
-            <li className="py-2 text-blue-700 font-semibold cursor-pointer">
+            <li onClick={handleProfileClick} className="py-2 text-blue-700 font-semibold cursor-pointer">
               Perfil
             </li>
           </ul>

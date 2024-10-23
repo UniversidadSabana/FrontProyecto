@@ -23,6 +23,7 @@ function App() {
           <Route path="/add-vehicle" element={<AddVehicle />} />
           <Route path="/trip-list" element={<TripList />} />
           <Route path="/trip-details/:tripId" element={<TripDetails />} />
+           {/*toca montar el ProfilePassenger */}
         </Routes>
       </Router>
     </UserProvider>

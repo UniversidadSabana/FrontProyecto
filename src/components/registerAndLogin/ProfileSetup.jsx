@@ -30,6 +30,7 @@ const ProfileSetup = () => {
     setMail(user.mail);
   }, [user]);
 
+
   // Función para validar el email
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -75,12 +76,8 @@ const ProfileSetup = () => {
       password: user.password, // Asegúrate de tener la contraseña en el contexto
     };
 
-    // Imprimir los datos que se van a enviar
-    console.log('Datos que se enviarán al backend:', updatedUser);
-    setUser(updatedUser);
-
     try {
-      // Enviar los datos al endpoint de registro
+      // Enviar los datos al backend
       const response = await fetch('https://wheels-backend-rafaelsavas-projects.vercel.app/api/register', {
         method: 'POST',
         headers: {
@@ -88,31 +85,29 @@ const ProfileSetup = () => {
         },
         body: JSON.stringify(updatedUser),
       });
+
       if (!response.ok) {
         const errorText = await response.json();
-        console.error('Error en el backend:', errorText);
-        setModalMessage(`Ocurrió un error al registrar el vehículo. ${errorText.error}`);
+        setModalMessage(`Ocurrió un error al registrar el perfil. ${errorText.error}`);
         setIsModalOpen(true); // Mostrar modal de error
         return;
       }
 
       const data = await response.json();
-      console.log('Respuesta del backend:', data);
-
-      // Muestra el modal con un mensaje de éxito
       setModalMessage('El perfil se ha registrado correctamente.');
       setIsModalOpen(true);
 
-      // Redirigir después de cerrar el modal
+      // Actualizar el contexto con los nuevos datos del usuario
+      setUser(data);
+
+      // Redirigir según la opción de conductor
       if (isDriver) {
-        setTimeout(() => navigate('/add-vehicle'), 2000); // redirige tras cerrar el modal
+        setTimeout(() => navigate('/add-vehicle'), 2000); // Redirige tras cerrar el modal
       } else {
-        setTimeout(() => navigate('/login'), 2000);
+        setTimeout(() => navigate('/trip-list'), 2000); // Redirige a lista de viajes
       }
 
     } catch (error) {
-      console.error('Error al enviar los datos:', error);
-      // Muestra el modal con un mensaje de error
       setModalMessage('Ocurrió un error al registrar el perfil. Inténtalo de nuevo.');
       setIsModalOpen(true);
     }
