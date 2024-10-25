@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from '../registerAndLogin/UserContext'; // Asume que tienes un UserContext para gestionar el estado del usuario
+import { useUser } from '../auth/UserContext'; // Asume que tienes un UserContext para gestionar el estado del usuario
 
 const Sidebar = ({ onClose }) => {
   const { user } = useUser();

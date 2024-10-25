@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react';
 import CustomInput from '../reusable/CustomInput';
 import CustomButton from '../reusable/CustomButton';
 import { Camera } from 'lucide-react';
-import { useUser } from './UserContext';
+import { useUser } from '../auth/UserContext';
 import Modal from '../reusable/Modal';
 import { useNavigate } from 'react-router-dom';
-import imageCompression from 'browser-image-compression';  // Importa la biblioteca de compresión
 
 const AddVehicle = () => {
   const { user } = useUser();
@@ -25,28 +24,40 @@ const AddVehicle = () => {
   // Verificar si el usuario está presente, si no, redirigir a '/'
   useEffect(() => {
     if (!user || !user.id) {
-      navigate('/');
+      navigate('/login');
     }
   }, [user, navigate]);
 
-  // Función para comprimir y manejar la carga de la imagen
+  // Función para subir la imagen a Cloudinary y manejar la carga
+  const uploadToCloudinary = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'ml_default'); 
+
+    try {
+      const response = await fetch('https://api.cloudinary.com/v1_1/dfcprvapn/image/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+      console.log(data.secure_url);
+      return data.secure_url; 
+    } catch (error) {
+      console.error('Error al subir la imagen a Cloudinary:', error);
+      throw error;
+    }
+  };
+
+  // Función para manejar la selección de imagen
   const handleImageChange = async (e, setImage) => {
     const file = e.target.files[0];
     if (file) {
       try {
-        const options = {
-          maxSizeMB: 1, // Tamaño máximo de imagen a 1MB
-          maxWidthOrHeight: 1920, // Redimensiona si es necesario
-          useWebWorker: true, // Habilitar para mejorar el rendimiento
-        };
-        const compressedFile = await imageCompression(file, options);
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setImage(reader.result); // Convertimos la imagen comprimida a base64
-        };
-        reader.readAsDataURL(compressedFile); // Leer la imagen comprimida
+        const imageUrl = await uploadToCloudinary(file); // Subimos la imagen a Cloudinary
+        setImage(imageUrl); // Guardamos la URL en el estado
       } catch (error) {
-        console.error('Error al comprimir la imagen:', error);
+        console.error('Error al subir la imagen:', error);
       }
     }
   };
@@ -65,8 +76,8 @@ const AddVehicle = () => {
       brand,
       model,
       color,
-      picture: vehicleImage,
-      soat: soatImage,
+      picture: vehicleImage,  // Ahora es la URL de Cloudinary
+      soat: soatImage,        // También la URL de Cloudinary
     };
 
     console.log('Datos del vehículo que se enviarán:', vehicleData);

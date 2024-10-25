@@ -1,14 +1,15 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Welcome from './components/registerAndLogin/Welcome';
-import Register from './components/registerAndLogin/Register';
-import Password from './components/registerAndLogin/Password';
-import ProfileSetup from './components/registerAndLogin/ProfileSetup';
-import AddVehicle from './components/registerAndLogin/AddVehicle';
-import UserProvider  from './components/registerAndLogin/UserContext';
-import Login from './components/registerAndLogin/Login';
-import TripList from './components/mainPage/TripList';
-import TripDetails from './components/mainPage/TripDetails'; // Importamos el nuevo componente de detalles de viaje
+import Welcome from './components/auth/Welcome';
+import Register from './components/auth/Register';
+import Password from './components/auth/Password';
+import ProfileSetup from './components/profile/ProfileSetup';
+import AddVehicle from './components/profile/AddVehicle';
+import UserProvider  from './components/auth/UserContext';
+import Login from './components/auth/Login';
+import TripList from './components/trip/TripList';
+import TripDetails from './components/trip/TripDetails';
+import ProfilePassenger from './components/profile/ProfilePassenger';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="/add-vehicle" element={<AddVehicle />} />
           <Route path="/trip-list" element={<TripList />} />
           <Route path="/trip-details/:tripId" element={<TripDetails />} />
+          <Route path="/profile-passenger" element={<ProfilePassenger />} />
            {/*toca montar el ProfilePassenger */}
         </Routes>
       </Router>

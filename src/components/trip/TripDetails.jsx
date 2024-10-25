@@ -1,16 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { MapPin, User, DollarSign, Calendar } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-const TripDetails = () => {
+
+const TripDetails = () =>  {
   const { tripId } = useParams(); // Obtener tripId de la URL
   const [trip, setTrip] = useState(null);
   const [error, setError] = useState(null); // Estado para manejar errores
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTripDetails = async () => {
       try {
         const token = localStorage.getItem('token'); // Obtener el token del localStorage
+
+        if (!token) {
+          navigate('/login'); // Redirigir a la página de inicio de sesión si no hay token
+        }
 
         const response = await fetch(`https://wheels-backend-rafaelsavas-projects.vercel.app/api/trip/${tripId}`, {
           method: 'GET',
@@ -19,6 +26,11 @@ const TripDetails = () => {
             'Content-Type': 'application/json', // Asegurarnos de especificar que el contenido es JSON
           }
         });
+        
+        if (response.status === 401 || response.status === 403) {
+          // Token inválido o no autorizado
+          navigate('/login');}
+          
 
         if (!response.ok) {
           // Si la respuesta no es 200-299, lanza un error con el estado
@@ -53,7 +65,7 @@ const TripDetails = () => {
       <div className="bg-white p-6 rounded-lg shadow-md max-w-4xl mx-auto">
         <div className="text-center mb-6">
           {/* Si tienes una imagen del viaje, puedes mostrarla aquí */}
-          <img src={trip.image || 'https://via.placeholder.com/400'} alt="Vehicle" className="w-full h-64 object-cover rounded-lg" />
+          <img src={trip.carPicture} alt="Vehicle" className="w-full h-64 object-cover rounded-lg" />
         </div>
 
         <h3 className="text-2xl font-bold text-blue-800 mb-2">Información del viaje</h3>

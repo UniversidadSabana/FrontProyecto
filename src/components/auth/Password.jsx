@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState ,useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthLayout from '../reusable/AuthLayout';
 import CustomInput from '../reusable/CustomInput';
@@ -13,6 +13,12 @@ const Password = () => {
   const [error, setError] = useState('');
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user.name) {
+      navigate('/login');
+    }
+  }, [user, navigate]);
 
   // Función para validar la contraseña
   const validatePassword = (password) => {

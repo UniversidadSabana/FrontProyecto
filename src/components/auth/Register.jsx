@@ -11,8 +11,8 @@ const Register = () => {
   const [name, setName] = useState('');
   const [lastName, setLastName] = useState('');
   const [mail, setMail] = useState('');
-  const [emailError, setEmailError] = useState(''); // Estado para el mensaje de error
-  const [error, setError] = useState(''); // Estado para manejar los errores de validación
+  const [emailError, setEmailError] = useState(''); 
+  const [error, setError] = useState(''); 
 
   const navigate = useNavigate();
 
@@ -23,7 +23,7 @@ const Register = () => {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault(); // Evitar el comportamiento por defecto del formulario
+    e.preventDefault(); 
 
     // Verificar si los campos están vacíos
     if (!name || !lastName || !mail) {

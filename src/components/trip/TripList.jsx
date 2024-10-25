@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NavigationBar from '../reusable/NavigationBar';
 import Sidebar from '../reusable/Sidebar';
-import TripCard from '../reusable/TripCard';
+import TripCard from './TripCard';
 
 const TripList = () => {
   const [trips, setTrips] = useState([]);
@@ -26,9 +26,7 @@ const TripList = () => {
           'Authorization': `Bearer ${token}`
         }
       });
-
       if (response.status === 401 || response.status === 403) {
-        // Token inválido o no autorizado
         navigate('/login');
       } else {
         const data = await response.json();
