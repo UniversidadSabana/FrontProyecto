@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import AuthLayout from "../reusable/AuthLayout"; // Asegúrate de usar la ruta correcta
+import AuthLayout from "../reusable/AuthLayout"; 
 import CustomInput from "../reusable/CustomInput";
 import CustomButton from "../reusable/CustomButton";
 import LinkText from "../reusable/LinkText";
-import Modal from "../reusable/Modal"; // Asegúrate de importar el componente Modal
+import Swal from 'sweetalert2'; // Importamos SweetAlert2
 
 const Login = () => {
   const [mail, setMail] = useState("");
   const [password, setPassword] = useState("");
-  const [modalMessage, setModalMessage] = useState(""); 
-  const [error,setError]=useState('')
-  const [isModalOpen, setIsModalOpen] = useState(false); 
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   // Función para verificar la validez del token
@@ -49,7 +47,7 @@ const Login = () => {
 
     // Verificar que ambos campos estén completos
     if (!mail || !password) {
-      setError("Por favor completa ambos campos"); // Mostrar mensaje de error
+      setError("Por favor completa ambos campos");
       return;
     }
 
@@ -72,8 +70,12 @@ const Login = () => {
 
       if (!response.ok) {
         const errorText = await response.json();
-        setModalMessage("Error de autenticación: " + errorText.error); // Mostrar el error en el modal
-        setIsModalOpen(true); // Abrir el modal
+        Swal.fire({
+          title: "Error de autenticación",
+          text: errorText.error,
+          icon: "error",
+          confirmButtonText: "Intentar de nuevo",
+        });
         return;
       }
 
@@ -83,16 +85,24 @@ const Login = () => {
       // Almacenar el token JWT en localStorage
       localStorage.setItem("token", data.token);
 
-      // Mostrar mensaje de éxito y redirigir
-      setModalMessage("Inicio de sesión exitoso. Redirigiendo...");
-      setIsModalOpen(true);
-      setTimeout(() => {
-        navigate("/trip-list"); // Redirigir después de unos segundos
-      }, 2000); // Esperar 2 segundos antes de redirigir
+      // Mostrar alerta de éxito y redirigir
+      Swal.fire({
+        title: "Inicio de sesión exitoso",
+        text: "Redirigiendo a la lista de viajes...",
+        icon: "success",
+        showConfirmButton: false,
+        timer: 2000, // Esperar 2 segundos antes de redirigir
+      }).then(() => {
+        navigate("/trip-list"); // Redirigir después de la alerta
+      });
     } catch (error) {
       console.error("Error en la solicitud:", error);
-      setModalMessage("Error en la solicitud. Por favor, intenta de nuevo.");
-      setIsModalOpen(true);
+      Swal.fire({
+        title: "Error",
+        text: "Error en la solicitud. Por favor, intenta de nuevo.",
+        icon: "error",
+        confirmButtonText: "Intentar de nuevo",
+      });
     }
   };
 
@@ -111,8 +121,7 @@ const Login = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        {error && <p className="text-red-500 text-sm">{error}</p>}{" "}
-        {/* Mensaje de error para campos vacíos */}
+        {error && <p className="text-red-500 text-sm">{error}</p>} 
         <CustomButton
           type="submit"
           className="bg-orange-500 text-white py-2 px-6 rounded-lg hover:bg-orange-600"
@@ -123,13 +132,6 @@ const Login = () => {
       <p className="text-center mt-4">
         ¿No tienes cuenta? <LinkText href="/register">Regístrate</LinkText>
       </p>
-
-      {/* Modal para mostrar mensajes */}
-      <Modal
-        isOpen={isModalOpen}
-        message={modalMessage}
-        onClose={() => setIsModalOpen(false)} // Cerrar el modal
-      />
     </AuthLayout>
   );
 };

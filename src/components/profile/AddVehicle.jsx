@@ -218,12 +218,12 @@ const AddVehicle = () => {
 
           {/* Botones */}
           <div className="flex justify-between mt-6">
-            <CustomButton
-              onClick={() => console.log('Cancelar clicado')}
-              className="bg-white text-blue-800 border border-blue-800 py-2 px-6 rounded-lg hover:bg-gray-300"
-            >
-              Cancelar
-            </CustomButton>
+          <CustomButton
+                onClick={() => navigate("/trip-list")} // Botón de cancelar que redirige
+                className="bg-gray-500 hover:bg-gray-600 text-white"
+              >
+                Cancelar
+              </CustomButton>
             <CustomButton
               onClick={handleSubmit}
               className="bg-orange-500 hover:bg-orange-600 text-white"

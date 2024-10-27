@@ -4,7 +4,7 @@ import CustomInput from "../reusable/CustomInput";
 import CustomButton from "../reusable/CustomButton";
 import { Camera } from "lucide-react";
 import { useUser } from "../auth/UserContext";
-import Modal from "../reusable/Modal"; // Importa el modal
+import Swal from 'sweetalert2'; // Importa SweetAlert2
 
 const defaultProfileImage = "https://res.cloudinary.com/dfcprvapn/image/upload/v1729783367/default-img_kun3yf.png";
 
@@ -16,10 +16,8 @@ const ProfileSetup = () => {
   const [contactNumber, setContactNumber] = useState("");
   const [image, setImage] = useState(null); // URL de la imagen
   const [id, setId] = useState("");
-  const [isDriver, setIsDriver] = useState(false);
+  const [isDriver, setIsDriver] = useState(false); // Casilla "Quiero ser conductor"
   const [error, setError] = useState("");
-  const [modalMessage, setModalMessage] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -27,10 +25,10 @@ const ProfileSetup = () => {
     setName(user.name);
     setLastName(user.lastName);
     setMail(user.mail);
-    if(!user.name){
-      navigate('/login')
+    if (!user.name) {
+      navigate('/login');
     }
-  }, [user]);
+  }, [user, navigate]);
 
   // Función para validar el email
   const validateEmail = (email) => {
@@ -42,7 +40,7 @@ const ProfileSetup = () => {
   const uploadToCloudinary = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "ml_default"); 
+    formData.append("upload_preset", "ml_default");
 
     try {
       const response = await fetch(
@@ -78,25 +76,41 @@ const ProfileSetup = () => {
   const handleSubmit = async () => {
     // Validar que los campos no estén vacíos
     if (!name || !lastName || !mail || !contactNumber || !id) {
-      setError("Todos los campos son obligatorios");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Todos los campos son obligatorios',
+      });
       return;
     }
 
     // Validar formato de email
     if (!validateEmail(mail)) {
-      setError("Por favor ingrese un correo válido");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Por favor ingrese un correo válido',
+      });
       return;
     }
 
     // Validar que ID y número de contacto solo contengan números
     if (!/^\d+$/.test(id) || !/^\d+$/.test(contactNumber)) {
-      setError("El ID y el número de contacto deben contener solo números");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'El ID y el número de contacto deben contener solo números',
+      });
       return;
     }
 
     // Validar que el número de contacto tenga hasta 10 dígitos
     if (contactNumber.length > 10) {
-      setError("El número de contacto debe tener hasta 10 dígitos");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'El número de contacto debe tener hasta 10 dígitos',
+      });
       return;
     }
 
@@ -113,12 +127,10 @@ const ProfileSetup = () => {
       password: user.password, // Asegúrate de tener la contraseña en el contexto
     };
 
-    // Imprimir los datos que se van a enviar
     console.log("Datos que se enviarán al backend:", updatedUser);
     setUser(updatedUser);
 
     try {
-      // Enviar los datos al endpoint de registro
       const response = await fetch(
         "https://wheels-backend-rafaelsavas-projects.vercel.app/api/register",
         {
@@ -132,34 +144,39 @@ const ProfileSetup = () => {
 
       if (!response.ok) {
         const errorText = await response.json();
-        console.error("Error en el backend:", errorText);
-        setModalMessage(
-          `Ocurrió un error al registrar el perfil. ${errorText.error}`
-        );
-        setIsModalOpen(true); // Mostrar modal de error
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: `Ocurrió un error al registrar el perfil. ${errorText.error}`,
+        });
         return;
       }
 
       const data = await response.json();
       console.log("Respuesta del backend:", data);
 
-      // Muestra el modal con un mensaje de éxito
-      setModalMessage("El perfil se ha registrado correctamente.");
-      setIsModalOpen(true);
+      // Mostrar alerta de éxito
+      Swal.fire({
+        icon: 'success',
+        title: 'Éxito',
+        text: 'El perfil se ha registrado correctamente',
+        timer: 2000,
+        showConfirmButton: false
+      });
 
-      // Redirigir después de cerrar el modal
+      // Redirigir solo si "Quiero ser conductor" está activado
       if (isDriver) {
-        setTimeout(() => navigate("/add-vehicle"), 2000); // redirige tras cerrar el modal
+        setTimeout(() => navigate("/add-vehicle"), 2000); // Redirige a "Añadir vehículo"
       } else {
-        setTimeout(() => navigate("/login"), 2000);
+        setTimeout(() => navigate("/trip-list"), 2000); // Redirige a "trip-list"
       }
     } catch (error) {
       console.error("Error al enviar los datos:", error);
-      // Muestra el modal con un mensaje de error
-      setModalMessage(
-        "Ocurrió un error al registrar el perfil. Inténtalo de nuevo."
-      );
-      setIsModalOpen(true);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Ocurrió un error al registrar el perfil. Inténtalo de nuevo.',
+      });
     }
   };
 
@@ -249,25 +266,20 @@ const ProfileSetup = () => {
                 className="toggle-checkbox h-6 w-6 text-blue-600"
               />
             </div>
+
             {/* Botones */}
-            <div className="flex justify-end mt-6">
+            <div className="flex justify-end mt-6 gap-4">
               <CustomButton
                 onClick={handleSubmit}
                 className="bg-orange-500 hover:bg-orange-600 text-white"
               >
                 Guardar Perfil
               </CustomButton>
+              
             </div>
           </form>
         </div>
       </div>
-
-      {/* Modal para mostrar éxito o error */}
-      <Modal
-        message={modalMessage}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)} // Cierra el modal
-      />
     </div>
   );
 };
