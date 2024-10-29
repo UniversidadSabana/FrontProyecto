@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from '../auth/UserContext'; // Asume que tienes un UserContext para gestionar el estado del usuario
+import { useUser } from '../auth/UserContext';
 
 const Sidebar = ({ onClose }) => {
   const { user } = useUser();
@@ -33,12 +33,17 @@ const Sidebar = ({ onClose }) => {
   // Función para redirigir al perfil según el rol del usuario
   const handleProfileClick = () => {
     if (user.isDriver) {
-      navigate('/profile-setup'); // Si es conductor, redirige a la configuración del conductor
+      navigate('/profile-setup');
     } else {
-      navigate('/profile-passenger'); // Si es pasajero, redirige a la configuración del pasajero
+      navigate('/profile-passenger');
     }
   };
-  
+
+  // Función para cerrar sesión
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
 
   if (!profile) {
     return <p>Cargando...</p>;
@@ -48,34 +53,45 @@ const Sidebar = ({ onClose }) => {
     <div
       id="sidebarOverlay"
       className="fixed inset-0 bg-black bg-opacity-50 flex justify-end z-50"
-      onClick={handleOutsideClick} // Detectar clics fuera del Sidebar para cerrarlo
+      onClick={handleOutsideClick}
     >
-      <div className="bg-white w-80 p-6 shadow-lg">
+      <div className="bg-white w-80 p-6 shadow-lg flex flex-col justify-between h-full">
         <button onClick={onClose} className="text-left text-3xl text-blue-800 mb-4">
-          &#9776; {/* Icono del menú */}
+          &#9776;
         </button>
+        
+        {/* Contenido del perfil */}
         <div>
-          {/* Imagen de perfil proveniente del backend en base64 */}
           <img
             src={profile.image}
             alt="Profile"
             className="rounded-full w-24 h-24 mx-auto bg-center my-2 bg-cover mb-5 border-2 border-blue-800"
           />
-          <h2 className="text-xl font-bold mt-4 text-blue-900">
+          <h2 className="text-xl font-bold mt-4 text-blue-900 text-center">
             {profile.name} {profile.lastName}
           </h2>
-          <p className="text-blue-700 text-sm">{profile.mail}</p>
+          <p className="text-blue-700 text-sm text-center">{profile.mail}</p>
           <ul className="mt-4 space-y-2">
-            <li className="py-2 text-blue-700 font-semibold cursor-pointer">
+            <li className="py-2 text-blue-700 font-semibold cursor-pointer" onClick={() => navigate('/trip-list')}>
               Ver viajes disponibles
             </li>
-            <li onClick={() => navigate('/trip-list')} className="py-2 text-blue-700 font-semibold cursor-pointer">
+            <li className="py-2 text-blue-700 font-semibold cursor-pointer" onClick={() => navigate('/trip-list')}>
               Gestionar Viajes
             </li>
-            <li onClick={handleProfileClick} className="py-2 text-blue-700 font-semibold cursor-pointer">
+            <li className="py-2 text-blue-700 font-semibold cursor-pointer" onClick={handleProfileClick}>
               Perfil
             </li>
           </ul>
+        </div>
+        
+        {/* Botón de cerrar sesión al fondo del Sidebar */}
+        <div className="mt-auto">
+          <button
+            onClick={handleLogout}
+            className="w-full py-2 text-white bg-red-500 rounded-lg hover:bg-red-600 font-semibold"
+          >
+            Cerrar Sesión
+          </button>
         </div>
       </div>
     </div>

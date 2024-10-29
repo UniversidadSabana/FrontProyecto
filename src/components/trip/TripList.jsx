@@ -10,7 +10,8 @@ const TripList = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [minSeats, setMinSeats] = useState('');
   const [departurePoint, setDeparturePoint] = useState('');
-  const navigate = useNavigate(); // Para redireccionar a /login
+  const [isDriver, setIsDriver] = useState(false); // Estado para el modo de usuario
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTrips = async () => {
@@ -36,7 +37,14 @@ const TripList = () => {
     };
 
     fetchTrips();
-  }, [navigate]); // Añadir navigate como dependencia
+  }, [navigate]);
+
+  // Redirigir a la página de "Gestionar Viajes" cuando se activa "Modo Conductor"
+  useEffect(() => {
+    if (isDriver) {
+      navigate('/manage-trips');
+    }
+  }, [isDriver, navigate]);
 
   // Función para filtrar los viajes según los valores seleccionados
   const filterTrips = () => {
@@ -59,6 +67,31 @@ const TripList = () => {
       <NavigationBar onMenuClick={() => setSidebarOpen(true)} />
 
       <div className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-white text-3xl font-bold">Viajes disponibles</h2>
+          {/* Switch de "Modo Pasajero / Conductor" */}
+          <div className="flex items-center">
+            <span className="text-white mr-3">Modo Pasajero</span>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isDriver}
+                onChange={() => setIsDriver(!isDriver)}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:bg-green-500 relative">
+                {/* Círculo del switch */}
+                <span
+                  className={`absolute left-1 top-1 h-4 w-4 rounded-full transition-transform ${
+                    isDriver ? 'bg-white' : 'bg-gray-500'
+                  } ${isDriver ? 'transform translate-x-5' : ''}`}
+                ></span>
+              </div>
+              <span className="ml-3 text-sm font-medium text-white">Modo Conductor</span>
+            </label>
+          </div>
+        </div>
+
         {/* Filtros */}
         <div className="bg-white p-4 rounded-lg mb-6 shadow-lg">
           <h2 className="text-blue-900 text-2xl font-semibold mb-4">Filtros</h2>
