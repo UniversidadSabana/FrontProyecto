@@ -136,7 +136,7 @@ const TripList = () => {
         )}
 
         {/* Sidebar */}
-        {sidebarOpen && <Sidebar onClose={() => setSidebarOpen(false)} />}
+        {sidebarOpen && <Sidebar onClose={() => setSidebarOpen(false)} isDriver={false} />}
       </div>
     </div>
   );

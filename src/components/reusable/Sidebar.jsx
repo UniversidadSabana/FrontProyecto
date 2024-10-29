@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from '../auth/UserContext';
 
-const Sidebar = ({ onClose }) => {
-  const { user } = useUser();
+const Sidebar = ({ onClose, isDriver }) => {
   const [profile, setProfile] = useState(null);
   const navigate = useNavigate();
 
@@ -27,15 +25,6 @@ const Sidebar = ({ onClose }) => {
   const handleOutsideClick = (e) => {
     if (e.target.id === 'sidebarOverlay') {
       onClose();
-    }
-  };
-
-  // Función para redirigir al perfil según el rol del usuario
-  const handleProfileClick = () => {
-    if (user.isDriver) {
-      navigate('/profile-setup');
-    } else {
-      navigate('/profile-passenger');
     }
   };
 
@@ -72,13 +61,29 @@ const Sidebar = ({ onClose }) => {
           </h2>
           <p className="text-blue-700 text-sm text-center">{profile.mail}</p>
           <ul className="mt-4 space-y-2">
-            <li className="py-2 text-blue-700 font-semibold cursor-pointer" onClick={() => navigate('/trip-list')}>
-              Ver viajes disponibles
-            </li>
-            <li className="py-2 text-blue-700 font-semibold cursor-pointer" onClick={() => navigate('/trip-list')}>
-              Gestionar Viajes
-            </li>
-            <li className="py-2 text-blue-700 font-semibold cursor-pointer" onClick={handleProfileClick}>
+            {isDriver ? (
+              <>
+                <li className="py-2 text-blue-700 font-semibold cursor-pointer" onClick={() => navigate('/add-trip')}>
+                  Registrar Viaje
+                </li>
+                <li className="py-2 text-blue-700 font-semibold cursor-pointer" onClick={() => navigate('/trips-registered')}>
+                  Ver viajes registrados
+                </li>
+                <li className="py-2 text-blue-700 font-semibold cursor-pointer" onClick={() => navigate('/view-vehicle')}>
+                  Ver Auto registrado
+                </li>
+              </>
+            ) : (
+              <>
+                <li className="py-2 text-blue-700 font-semibold cursor-pointer" onClick={() => navigate('/trip-list')}>
+                  Ver viajes disponibles
+                </li>
+                <li className="py-2 text-blue-700 font-semibold cursor-pointer" onClick={() => navigate('/trip-list')}>
+                  Gestionar Viajes
+                </li>
+              </>
+            )}
+            <li className="py-2 text-blue-700 font-semibold cursor-pointer" onClick={() => navigate('/profile-passenger')}>
               Perfil
             </li>
           </ul>
