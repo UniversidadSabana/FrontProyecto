@@ -12,6 +12,7 @@ import TripDetails from './components/trip/TripDetails';
 import ProfilePassenger from './components/profile/ProfilePassenger';
 import ManageTrips from './components/driver/ManageTrips'; // Importa el nuevo componente
 import MyReservations from './components/passengerBar/Reservations';
+import RegisterTrip from './components/driver/RegisterTrip';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path="/profile-passenger" element={<ProfilePassenger />} />
           <Route path="/manage-trips" element={<ManageTrips />} /> {/* Nueva ruta */}
           <Route path="/my-reservations" element={<MyReservations />} />
+          <Route path="/register-trip" element={<RegisterTrip />} />
         </Routes>
       </Router>
     </UserProvider>

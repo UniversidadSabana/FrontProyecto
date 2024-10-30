@@ -1,22 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MapPin, User, DollarSign, Calendar } from 'lucide-react';
+import Swal from 'sweetalert2'; // Importa SweetAlert2
 
 const TripDetails = () => {
-  const { tripId } = useParams(); // Obtener tripId de la URL
+  const { tripId } = useParams();
   const [trip, setTrip] = useState(null);
-  const [seatsReserved, setSeatsReserved] = useState(1); // Estado para el número de cupos
-  const [stops, setStops] = useState([]); // Estado para las paradas seleccionadas
-  const [error, setError] = useState(null); // Estado para manejar errores
+  const [seatsReserved, setSeatsReserved] = useState(1);
+  const [stops, setStops] = useState([]);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTripDetails = async () => {
       try {
-        const token = localStorage.getItem('token'); // Obtener el token del localStorage
+        const token = localStorage.getItem('token');
 
         if (!token) {
-          navigate('/login'); // Redirigir a la página de inicio de sesión si no hay token
+          navigate('/login');
           return;
         }
 
@@ -59,7 +60,13 @@ const TripDetails = () => {
 
       const result = await response.json();
       if (response.ok) {
-        alert(`Reserva exitosa: ${result.message}. Cupos restantes: ${result.seatsRemaining}`);
+        // Mostrar SweetAlert de reserva confirmada
+        await Swal.fire({
+          icon: 'success',
+          title: 'Reserva exitosa',
+          text: `${result.message}. Cupos restantes: ${result.seatsRemaining}`,
+          confirmButtonText: 'OK'
+        });
         navigate('/trip-list'); // Redirigir a la lista de viajes después de la reserva
       } else {
         throw new Error(result.error || 'Error en la reserva');
