@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { MapPin, User, DollarSign, Calendar } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
-
-const TripDetails = () =>  {
+const TripDetails = () => {
   const { tripId } = useParams(); // Obtener tripId de la URL
   const [trip, setTrip] = useState(null);
+  const [seatsReserved, setSeatsReserved] = useState(1); // Estado para el número de cupos
+  const [stops, setStops] = useState([]); // Estado para las paradas seleccionadas
   const [error, setError] = useState(null); // Estado para manejar errores
   const navigate = useNavigate();
 
@@ -17,42 +17,61 @@ const TripDetails = () =>  {
 
         if (!token) {
           navigate('/login'); // Redirigir a la página de inicio de sesión si no hay token
+          return;
         }
 
         const response = await fetch(`https://wheels-backend-rafaelsavas-projects.vercel.app/api/trip/${tripId}`, {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${token}`, // Incluir el token en el header Authorization
-            'Content-Type': 'application/json', // Asegurarnos de especificar que el contenido es JSON
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
           }
         });
-        
-        if (response.status === 401 || response.status === 403) {
-          // Token inválido o no autorizado
-          navigate('/login');}
-          
 
         if (!response.ok) {
-          // Si la respuesta no es 200-299, lanza un error con el estado
           throw new Error(`Error HTTP: ${response.status}`);
         }
 
         const data = await response.json();
-        console.log('Respuesta completa del backend:', data); // Verificar la estructura completa de la respuesta
-
         setTrip(data);
-
       } catch (err) {
-        setError(err.message); // Captura y muestra cualquier error que ocurra
+        setError(err.message);
         console.error('Error al obtener detalles del viaje:', err);
       }
     };
 
     fetchTripDetails();
-  }, [tripId]);
+  }, [tripId, navigate]);
+
+  const handleReserve = async (e) => {
+    e.preventDefault();
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`https://wheels-backend-rafaelsavas-projects.vercel.app/api/trip/reserve/${tripId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ seatsReserved, stops }),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        alert(`Reserva exitosa: ${result.message}. Cupos restantes: ${result.seatsRemaining}`);
+        navigate('/trip-list'); // Redirigir a la lista de viajes después de la reserva
+      } else {
+        throw new Error(result.error || 'Error en la reserva');
+      }
+    } catch (err) {
+      setError(err.message);
+      console.error('Error en la reserva:', err);
+    }
+  };
 
   if (error) {
-    return <p className="text-red-600">Error: {error}</p>; // Mostrar errores si ocurren
+    return <p className="text-red-600">Error: {error}</p>;
   }
 
   if (!trip) {
@@ -64,7 +83,6 @@ const TripDetails = () =>  {
       <h2 className="text-3xl font-bold text-white mb-6">Detalles del viaje</h2>
       <div className="bg-white p-6 rounded-lg shadow-md max-w-4xl mx-auto">
         <div className="text-center mb-6">
-          {/* Si tienes una imagen del viaje, puedes mostrarla aquí */}
           <img src={trip.carPicture} alt="Vehicle" className="w-full h-64 object-cover rounded-lg" />
         </div>
 
@@ -86,27 +104,35 @@ const TripDetails = () =>  {
         </div>
 
         <h3 className="text-2xl font-bold text-blue-800 mt-6 mb-2">Reserva tu Cupo</h3>
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleReserve}>
           <div>
             <label className="block text-gray-700">Número de cupos</label>
-            <select className="w-full p-2 border rounded-lg">
-              <option>1</option>
-              <option>2</option>
-              <option>3</option>
+            <select className="w-full p-2 border rounded-lg" value={seatsReserved} onChange={(e) => setSeatsReserved(parseInt(e.target.value))}>
+              {[...Array(trip.seatsAvailable).keys()].map(n => (
+                <option key={n + 1} value={n + 1}>{n + 1}</option>
+              ))}
             </select>
           </div>
 
           <div>
-            <label className="block text-gray-700">Parada para el cupo</label>
-            <select className="w-full p-2 border rounded-lg">
-              <option>Parada 1</option>
-              <option>Parada 2</option>
-            </select>
+            <label className="block text-gray-700">Paradas para los cupos</label>
+            <input
+              type="text"
+              placeholder="Especifica paradas separadas por comas (Ej: Calle 142, Toberín)"
+              className="w-full p-2 border rounded-lg"
+              value={stops.join(', ')}
+              onChange={(e) => setStops(e.target.value.split(',').map(stop => stop.trim()))}
+            />
           </div>
 
-          <button type="submit" className="bg-orange-500 text-white px-4 py-2 rounded mt-4 hover:bg-orange-600 w-full">
-            Reservar Cupo(s)
-          </button>
+          <div className="flex justify-between">
+            <button type="submit" className="bg-orange-500 text-white px-4 py-2 rounded mt-4 hover:bg-orange-600 w-[40%]">
+              Reservar Cupo(s)
+            </button>
+            <button type="button" className="bg-red-600 text-white px-4 py-2 rounded mt-4 hover:bg-red-700 w-[40%]" onClick={() => navigate('/trip-list')}>
+              Cancelar
+            </button>
+          </div>
         </form>
       </div>
     </div>
