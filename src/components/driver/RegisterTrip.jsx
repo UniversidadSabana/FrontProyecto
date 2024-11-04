@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect,useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomButton from "../reusable/CustomButton";
+import { useDriver } from "./DriverContext";
+import Swal from "sweetalert2";
 
 const RegisterTrip = () => {
   const [initialPoint, setInitialPoint] = useState("");
@@ -9,6 +11,7 @@ const RegisterTrip = () => {
   const [departureTime, setDepartureTime] = useState("");
   const [seatsAvailable, setSeatsAvailable] = useState("");
   const [price, setPrice] = useState("");
+  const {isDriver,setIsDriver} = useDriver();
   const navigate = useNavigate();
 
   const handleRegister = () => {
@@ -17,8 +20,24 @@ const RegisterTrip = () => {
   };
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+  }, [navigate]);
+  
+  useEffect(() => {
     if (!isDriver) {
-      navigate('/trip-list');
+      Swal.fire({
+        title: "No eres conductor",
+        text: "Redirigiendo a la lista de viajes...",
+        icon: "error",
+        showConfirmButton: false,
+        timer: 2000, // Esperar 2 segundos antes de redirigir
+      }).then(() => {
+        navigate("/trip-list"); // Redirigir después de la alerta
+      });
     }
   }, [isDriver, navigate]);
 
@@ -81,12 +100,20 @@ const RegisterTrip = () => {
               onChange={(e) => setPrice(e.target.value)}
             />
           </div>
-          <CustomButton
-            onClick={handleRegister}
-            className="bg-orange-500 hover:bg-orange-600 text-white w-full py-3 rounded-lg"
-          >
-            Registrar Viaje
-          </CustomButton>
+          <div className="flex justify-between mt-6">
+            <CustomButton
+              onClick={() => navigate("/manage-trips")}
+              className="bg-white text-orange-500 border border-orange-500 hover:bg-gray-100 text-center px-6 py-2 rounded-lg"
+            >
+              Volver
+            </CustomButton>
+            <CustomButton
+              onClick={handleRegister}
+              className="bg-orange-500 hover:bg-orange-600 text-white text-center px-6 py-2 rounded-lg"
+            >
+              Registrar Viaje
+            </CustomButton>
+          </div>
         </form>
       </div>
     </div>
@@ -94,3 +121,4 @@ const RegisterTrip = () => {
 };
 
 export default RegisterTrip;
+

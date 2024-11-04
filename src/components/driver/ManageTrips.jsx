@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomButton from "../reusable/CustomButton";
 import NavigationBar from "../reusable/NavigationBar";
 import Sidebar from "../reusable/Sidebar";
 import Swal from "sweetalert2";
+import { useDriver } from "./DriverContext";
 
 const ManageTrips = () => {
   const [trips, setTrips] = useState([]); // Valor inicial como arreglo vacío
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isDriver, setIsDriver] = useState(true);
+  const { isDriver, setIsDriver } = useDriver();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,7 +31,16 @@ const ManageTrips = () => {
         );
 
         if (response.status === 401 || response.status === 403) {
-          navigate("/login");
+          setIsDriver(false)
+          Swal.fire({
+            title: "No eres conductor",
+            text: "Redirigiendo a la lista de viajes...",
+            icon: "error",
+            showConfirmButton: false,
+            timer: 2000, // Esperar 2 segundos antes de redirigir
+          }).then(() => {
+            navigate("/trip-list"); // Redirigir después de la alerta
+          });
         } else {
           const data = await response.json();
           setTrips(data.trips || []); // Asigna un arreglo vacío si no hay datos
@@ -44,11 +54,7 @@ const ManageTrips = () => {
     fetchTrips();
   }, [navigate]);
 
-  useEffect(() => {
-    if (!isDriver) {
-      navigate('/trip-list');
-    }
-  }, [isDriver, navigate]);
+
 
   const handleDelete = async (tripId) => {
     const token = localStorage.getItem("token");
