@@ -13,12 +13,10 @@ import ProfilePassenger from './components/profile/ProfilePassenger';
 import ManageTrips from './components/driver/ManageTrips'; // Importa el nuevo componente
 import MyReservations from './components/passengerBar/Reservations';
 import RegisterTrip from './components/driver/RegisterTrip';
-import DriverContext from './components/driver/DriverContext';
 
 function App() {
   return (
     <UserProvider>
-      <DriverContext>
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -35,7 +33,6 @@ function App() {
           <Route path="/register-trip" element={<RegisterTrip />} />
         </Routes>
       </Router>
-      </DriverContext>
     </UserProvider>
   );
 }

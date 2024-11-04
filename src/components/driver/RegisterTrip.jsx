@@ -1,7 +1,6 @@
-import React, { useState, useEffect,useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomButton from "../reusable/CustomButton";
-import { useDriver } from "./DriverContext";
 import Swal from "sweetalert2";
 
 const RegisterTrip = () => {
@@ -11,7 +10,6 @@ const RegisterTrip = () => {
   const [departureTime, setDepartureTime] = useState("");
   const [seatsAvailable, setSeatsAvailable] = useState("");
   const [price, setPrice] = useState("");
-  const {isDriver,setIsDriver} = useDriver();
   const navigate = useNavigate();
 
   const handleRegister = () => {
@@ -26,20 +24,6 @@ const RegisterTrip = () => {
       return;
     }
   }, [navigate]);
-  
-  useEffect(() => {
-    if (!isDriver) {
-      Swal.fire({
-        title: "No eres conductor",
-        text: "Redirigiendo a la lista de viajes...",
-        icon: "error",
-        showConfirmButton: false,
-        timer: 2000, // Esperar 2 segundos antes de redirigir
-      }).then(() => {
-        navigate("/trip-list"); // Redirigir después de la alerta
-      });
-    }
-  }, [isDriver, navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] p-6">
@@ -121,4 +105,3 @@ const RegisterTrip = () => {
 };
 
 export default RegisterTrip;
-
