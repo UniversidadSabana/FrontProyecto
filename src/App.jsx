@@ -5,7 +5,7 @@ import Register from './components/auth/Register';
 import Password from './components/auth/Password';
 import ProfileSetup from './components/profile/ProfileSetup';
 import AddVehicle from './components/profile/AddVehicle';
-import UserProvider from './components/auth/UserContext';
+import { UserProvider } from './components/auth/UserContext';
 import Login from './components/auth/Login';
 import TripList from './components/trip/TripList';
 import TripDetails from './components/trip/TripDetails';
@@ -13,6 +13,7 @@ import ProfilePassenger from './components/profile/ProfilePassenger';
 import ManageTrips from './components/driver/ManageTrips'; // Importa el nuevo componente
 import MyReservations from './components/passengerBar/Reservations';
 import RegisterTrip from './components/driver/RegisterTrip';
+import EditReservation from './components/passengerBar/EditReservation';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
           <Route path="/manage-trips" element={<ManageTrips />} /> {/* Nueva ruta */}
           <Route path="/my-reservations" element={<MyReservations />} />
           <Route path="/register-trip" element={<RegisterTrip />} />
+          <Route path="/edit-reservation/:reservationId" element={<EditReservation />} />
         </Routes>
       </Router>
     </UserProvider>

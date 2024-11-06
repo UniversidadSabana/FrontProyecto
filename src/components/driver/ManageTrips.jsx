@@ -34,7 +34,7 @@ const ManageTrips = () => {
         setIsDriver(false);
       } else {
         const data = await response.json();
-        setTrips(data.trips);
+        setTrips(data.trips || []); // Asegúrate de que trips sea un array aunque esté vacío
       }
     };
 

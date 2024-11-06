@@ -1,5 +1,3 @@
-// src/components/trip/MyReservations.jsx
-
 import React, { useEffect, useState } from 'react';
 import CustomButton from '../reusable/CustomButton';
 import Swal from 'sweetalert2'; // Importa SweetAlert2
@@ -25,7 +23,7 @@ const MyReservations = () => {
   }, []);
 
   const handleModify = (reservationId) => {
-    console.log('Modificar reserva:', reservationId);
+    navigate(`/edit-reservation/${reservationId}`);
   };
 
   const handleDelete = async (tripId) => {
@@ -90,7 +88,7 @@ const MyReservations = () => {
                 <p><strong>Tarifa:</strong> {reservation.price}</p>
               </div>
               <div className="flex gap-2">
-                <CustomButton onClick={() => handleModify(reservation.id)} className="bg-blue-500 text-white">
+                <CustomButton onClick={() => navigate(`/edit-reservation/${reservationId}`)} className="bg-blue-500 text-white">
                   Modificar
                 </CustomButton>
                 <CustomButton onClick={() => handleDelete(reservation.tripId)} className="bg-red-500 text-white">
