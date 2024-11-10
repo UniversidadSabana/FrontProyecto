@@ -12,9 +12,48 @@ const RegisterTrip = () => {
   const [price, setPrice] = useState("");
   const navigate = useNavigate();
 
-  const handleRegister = () => {
-    // Aquí iría la lógica para enviar los datos al backend
-    navigate("/manage-trips"); // Redirigir a "Gestionar Viajes" después del registro
+  const handleRegister = async () => {
+    const token = localStorage.getItem("token");
+    
+    if (!token) {
+      Swal.fire("Error", "No estás autenticado. Por favor inicia sesión.", "error");
+      navigate("/login");
+      return;
+    }
+
+    const tripData = {
+      initialPoint,
+      finalPoint,
+      route,
+      hour: departureTime,  // Cambia "departureTime" a "hour" para coincidir con el backend
+      seats: parseInt(seatsAvailable, 10),  // Cambia "seatsAvailable" a "seats"
+      price: parseFloat(price)  // Asegúrate de que "price" sea un número
+    };
+
+    try {
+      const response = await fetch("https://wheels-backend-rafaelsavas-projects.vercel.app/api/trip", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(tripData)
+      });
+
+      if (response.status === 201) {
+        // Muestra una alerta de éxito y redirige a la página de gestión de viajes
+        const responseData = await response.json();
+        Swal.fire("Éxito", responseData.message, "success");
+        navigate("/manage-trips");
+      } else {
+        // Muestra un error en caso de que la solicitud falle
+        const errorData = await response.json();
+        Swal.fire("Error", errorData.message || "No se pudo registrar el viaje", "error");
+      }
+    } catch (error) {
+      console.error("Error al registrar el viaje:", error);
+      Swal.fire("Error", "Ocurrió un error al intentar registrar el viaje", "error");
+    }
   };
 
   useEffect(() => {

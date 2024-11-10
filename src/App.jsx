@@ -5,7 +5,7 @@ import Register from './components/auth/Register';
 import Password from './components/auth/Password';
 import ProfileSetup from './components/profile/ProfileSetup';
 import AddVehicle from './components/profile/AddVehicle';
-import { UserProvider } from './components/auth/UserContext';
+import  UserProvider  from './components/auth/UserContext';
 import Login from './components/auth/Login';
 import TripList from './components/trip/TripList';
 import TripDetails from './components/trip/TripDetails';
@@ -32,7 +32,7 @@ function App() {
           <Route path="/manage-trips" element={<ManageTrips />} /> {/* Nueva ruta */}
           <Route path="/my-reservations" element={<MyReservations />} />
           <Route path="/register-trip" element={<RegisterTrip />} />
-          <Route path="/edit-reservation/:reservationId" element={<EditReservation />} />
+          <Route path="/edit-reservation/:tripId" element={<EditReservation />} />
         </Routes>
       </Router>
     </UserProvider>

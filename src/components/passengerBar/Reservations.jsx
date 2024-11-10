@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import CustomButton from '../reusable/CustomButton';
-import Swal from 'sweetalert2'; // Importa SweetAlert2
+import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 
 const MyReservations = () => {
@@ -22,8 +22,9 @@ const MyReservations = () => {
     fetchReservations();
   }, []);
 
-  const handleModify = (reservationId) => {
-    navigate(`/edit-reservation/${reservationId}`);
+  const handleModify = (tripId) => {
+    console.log(tripId)
+    navigate(`/edit-reservation/${tripId}`); // Asegúrate de que el tripId se está enviando correctamente
   };
 
   const handleDelete = async (tripId) => {
@@ -55,10 +56,8 @@ const MyReservations = () => {
         const data = await response.json();
         console.log(data.message);
 
-        // Actualizar la lista de reservas
-        setReservations(prevReservations => prevReservations.filter(reservation => reservation.id !== tripId));
+        setReservations(prevReservations => prevReservations.filter(reservation => reservation.tripId !== tripId));
 
-        // Mostrar alerta de éxito y redirigir a la lista de viajes
         await Swal.fire({
           icon: 'success',
           title: 'Reserva cancelada exitosamente',
@@ -78,7 +77,7 @@ const MyReservations = () => {
       <h1 className="text-white text-3xl font-semibold mb-6">Mis Reservas</h1>
       {reservations.length > 0 ? (
         reservations.map((reservation) => (
-          <div key={reservation.id} className="bg-white p-4 rounded-lg mb-4 shadow-lg">
+          <div key={reservation.tripId} className="bg-white p-4 rounded-lg mb-4 shadow-lg">
             <div className="flex justify-between">
               <div>
                 <p><strong>Inicio:</strong> {reservation.initialPoint}</p>
@@ -88,7 +87,7 @@ const MyReservations = () => {
                 <p><strong>Tarifa:</strong> {reservation.price}</p>
               </div>
               <div className="flex gap-2">
-                <CustomButton onClick={() => navigate(`/edit-reservation/${reservationId}`)} className="bg-blue-500 text-white">
+                <CustomButton onClick={() => handleModify(reservation.tripId)} className="bg-blue-500 text-white">
                   Modificar
                 </CustomButton>
                 <CustomButton onClick={() => handleDelete(reservation.tripId)} className="bg-red-500 text-white">
@@ -106,3 +105,4 @@ const MyReservations = () => {
 };
 
 export default MyReservations;
+

@@ -163,9 +163,10 @@ const ManageTrips = () => {
               <div className="flex justify-between items-center mb-3">
                 <div>
                   <p className="text-blue-900 font-semibold">Inicio: {trip.initialPoint}</p>
-                  <p className="text-blue-900 font-semibold">Fin: {trip.endPoint}</p>
+                  <p className="text-blue-900 font-semibold">Fin: {trip.finalPoint}</p>
                   <p className="text-gray-700">Ruta: {trip.route}</p>
-                  <p className="text-gray-700">Cupos: {trip.seatsAvailable}</p>
+                  <p className="text-gray-700">Cupos: {trip.seats
+                  }</p>
                   <p className="text-gray-700">Tarifa: {trip.price}</p>
                 </div>
               </div>
