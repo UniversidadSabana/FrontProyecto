@@ -5,7 +5,7 @@ import Register from './components/auth/Register';
 import Password from './components/auth/Password';
 import ProfileSetup from './components/profile/ProfileSetup';
 import AddVehicle from './components/profile/AddVehicle';
-import { UserProvider } from './components/auth/UserContext';
+import  UserProvider  from './components/auth/UserContext';
 import Login from './components/auth/Login';
 import TripList from './components/trip/TripList';
 import TripDetails from './components/trip/TripDetails';
