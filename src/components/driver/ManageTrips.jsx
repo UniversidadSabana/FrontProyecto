@@ -156,6 +156,7 @@ const ManageTrips = () => {
             Registra un nuevo viaje
           </CustomButton>
         </div>
+        
 
         {trips.length > 0 ? (
           trips.map((trip) => (
