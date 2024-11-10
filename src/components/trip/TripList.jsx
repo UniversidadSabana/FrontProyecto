@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import {useUser} from '../auth/UserContext';
 import { useNavigate } from 'react-router-dom';
 import NavigationBar from '../reusable/NavigationBar';
 import Sidebar from '../reusable/Sidebar';
 import TripCard from './TripCard';
 
 const TripList = () => {
+  const {user, setUser} = useUser();
   const [trips, setTrips] = useState([]);
   const [filteredTrips, setFilteredTrips] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -30,6 +32,7 @@ const TripList = () => {
       if (response.status === 401 || response.status === 403) {
         navigate('/login');
       } else {
+
         const data = await response.json();
         setTrips(data.trips);
         setFilteredTrips(data.trips); // Inicialmente, no hay filtros aplicados

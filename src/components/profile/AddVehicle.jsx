@@ -23,9 +23,17 @@ const AddVehicle = () => {
 
   // Verificar si el usuario está presente, si no, redirigir a '/'
   useEffect(() => {
-    if (!user || !user.id) {
-      navigate('/login');
+    if(!user||!user.id){
+    try{
+      const userId = JSON.parse(atob(localStorage.getItem('token').split('.')[1])).id;
+      if (!userId) {
+        navigate('/login');
+      }
     }
+    catch{
+      navigate('/login')
+    }}
+
   }, [user, navigate]);
 
   // Función para subir la imagen a Cloudinary y manejar la carga

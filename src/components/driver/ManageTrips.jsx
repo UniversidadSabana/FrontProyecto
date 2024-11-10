@@ -10,11 +10,12 @@ const ManageTrips = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isDriver, setIsDriver] = useState(true);
   const navigate = useNavigate();
-  const hasFetched = useRef(false); // Usar useRef para controlar la llamada al fetch
+  const hasFetched = useRef(false);
 
   useEffect(() => {
     const fetchTrips = async () => {
       const token = localStorage.getItem("token");
+      
       if (!token) {
         navigate("/login");
         return;
@@ -30,39 +31,36 @@ const ManageTrips = () => {
       );
 
       if (response.status === 401 || response.status === 403) {
-        console.log("Token inválido o expirado");
-        setIsDriver(false);
+        // Si el usuario no es conductor, mostrar la alerta y redirigir solo la primera vez
+        const result = await Swal.fire({
+          title: "No eres conductor",
+          text: "¿Quieres ser conductor?",
+          icon: "info",
+          confirmButtonText: "Sí",
+          showCancelButton: true,
+          cancelButtonText: "No",
+        });
+
+        if (result.isConfirmed) {
+          navigate("/add-vehicle"); // Redirigir a añadir vehículo
+        } else {
+          navigate("/trip-list"); // Redirigir a la lista de viajes si cancela
+        }
+
+        setIsDriver(false); // Cambiar a modo pasajero
       } else {
         const data = await response.json();
-        setTrips(data.trips || []); // Asegúrate de que trips sea un array aunque esté vacío
+        setTrips(data.trips || []);
       }
     };
 
-    if (!hasFetched.current) { // Solo hacer la llamada si no se ha hecho antes
+    if (!hasFetched.current) {
       fetchTrips();
-      hasFetched.current = true; // Marca que la llamada se ha hecho
+      hasFetched.current = true;
     }
   }, [navigate]);
 
-  useEffect(() => {
-    if (!isDriver) {
-      // Muestra la alerta solo si no es conductor
-      const showAlert = async () => {
-        await Swal.fire({
-          title: "No eres conductor",
-          text: "Redirigiendo a la lista de viajes...",
-          icon: "error",
-          showConfirmButton: false,
-          timer: 2000,
-        });
-        navigate('/trip-list');
-      };
-      showAlert();
-    }
-  }, [isDriver, navigate]);
-
   const handleDelete = async (tripId) => {
-    // Confirmación de SweetAlert2 antes de eliminar
     const result = await Swal.fire({
       title: "¿Estás seguro?",
       text: "Esta acción cancelará tu viaje creado.",
@@ -71,7 +69,7 @@ const ManageTrips = () => {
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Sí, cancelar",
-      cancelButtonText: "No"
+      cancelButtonText: "No",
     });
 
     if (result.isConfirmed) {
@@ -94,26 +92,32 @@ const ManageTrips = () => {
         const data = await response.json();
         console.log(data.message);
 
-        // Actualizar la lista de viajes eliminando el viaje cancelado
-        setTrips(prevTrips => prevTrips.filter(trip => trip.tripId !== tripId));
+        setTrips((prevTrips) =>
+          prevTrips.filter((trip) => trip.tripId !== tripId)
+        );
 
-        // SweetAlert2 para indicar éxito en la eliminación
         await Swal.fire({
           icon: "success",
           title: "Viaje cancelado exitosamente",
           showConfirmButton: false,
-          timer: 1500
+          timer: 1500,
         });
       } catch (error) {
         console.error("Error al cancelar el viaje:", error);
 
-        // Mostrar error con SweetAlert2 si ocurre un problema
         Swal.fire({
           icon: "error",
           title: "Error al cancelar",
           text: "Hubo un problema al intentar cancelar el viaje.",
         });
       }
+    }
+  };
+
+  const toggleDriverMode = () => {
+    setIsDriver(!isDriver);
+    if(isDriver){
+      navigate("/trip-list");
     }
   };
 
@@ -134,15 +138,19 @@ const ManageTrips = () => {
                 <input
                   type="checkbox"
                   checked={isDriver}
-                  onChange={() => setIsDriver(!isDriver)}
+                  onChange={toggleDriverMode}
                   className="sr-only peer"
                 />
                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:bg-green-500 relative">
                   <span
-                    className={`absolute left-1 top-1 h-4 w-4 rounded-full transition-transform ${isDriver ? "bg-white" : "bg-gray-500"} ${isDriver ? "transform translate-x-5" : ""}`}
+                    className={`absolute left-1 top-1 h-4 w-4 rounded-full transition-transform ${
+                      isDriver ? "bg-white" : "bg-gray-500"
+                    } ${isDriver ? "transform translate-x-5" : ""}`}
                   ></span>
                 </div>
-                <span className="ml-3 text-sm font-medium text-white">Modo Conductor</span>
+                <span className="ml-3 text-sm font-medium text-white">
+                  Modo Conductor
+                </span>
               </label>
             </div>
           </div>
@@ -160,21 +168,23 @@ const ManageTrips = () => {
 
         {trips.length > 0 ? (
           trips.map((trip) => (
-            <div key={trip.tripId} className="bg-white p-4 rounded-lg mb-4 shadow-lg">
+            <div
+              key={trip.tripId}
+              className="bg-white p-4 rounded-lg mb-4 shadow-lg"
+            >
               <div className="flex justify-between items-center mb-3">
                 <div>
                   <p className="text-blue-900 font-semibold">Inicio: {trip.initialPoint}</p>
                   <p className="text-blue-900 font-semibold">Fin: {trip.finalPoint}</p>
                   <p className="text-gray-700">Ruta: {trip.route}</p>
-                  <p className="text-gray-700">Cupos: {trip.seats
-                  }</p>
+                  <p className="text-gray-700">Cupos: {trip.seats}</p>
                   <p className="text-gray-700">Tarifa: {trip.price}</p>
                 </div>
               </div>
 
               <div className="flex justify-between">
                 <button
-                  onClick={() => handleEdit(trip.tripId)} // Asegúrate de definir handleEdit
+                  onClick={() => handleEdit(trip.tripId)}
                   className="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg mr-2"
                 >
                   Editar
