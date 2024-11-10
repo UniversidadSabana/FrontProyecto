@@ -32,7 +32,7 @@ function App() {
           <Route path="/manage-trips" element={<ManageTrips />} /> {/* Nueva ruta */}
           <Route path="/my-reservations" element={<MyReservations />} />
           <Route path="/register-trip" element={<RegisterTrip />} />
-          <Route path="/edit-reservation/:reservationId" element={<EditReservation />} />
+          <Route path="/edit-reservation/:tripId" element={<EditReservation />} />
         </Routes>
       </Router>
     </UserProvider>

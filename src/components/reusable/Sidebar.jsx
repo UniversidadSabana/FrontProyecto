@@ -75,9 +75,7 @@ const Sidebar = ({ onClose, isDriver }) => {
               </>
             ) : (
               <>
-                <li className="py-2 text-blue-700 font-semibold cursor-pointer" onClick={() => navigate('/trip-list')}>
-                  Ver viajes disponibles
-                </li> 
+                
                 <li className="py-2 text-blue-700 font-semibold cursor-pointer" onClick={() => navigate('/my-reservations')}>
                   Gestionar Viajes
                 </li>
