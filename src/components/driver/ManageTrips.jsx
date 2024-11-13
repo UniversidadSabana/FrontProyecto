@@ -9,6 +9,15 @@ const ManageTrips = () => {
   const [trips, setTrips] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isDriver, setIsDriver] = useState(true);
+  const [editingTrip, setEditingTrip] = useState(null);
+  const [editForm, setEditForm] = useState({
+    initialPoint: "",
+    finalPoint: "",
+    route: "", // Nuevo campo para la ruta
+    seats: "",
+    price: ""
+  });
+  const [departureTime, setDepartureTime] = useState(""); // Estado para la hora de salida
   const navigate = useNavigate();
   const hasFetched = useRef(false);
 
@@ -31,7 +40,6 @@ const ManageTrips = () => {
       );
 
       if (response.status === 401 || response.status === 403) {
-        // Si el usuario no es conductor, mostrar la alerta y redirigir solo la primera vez
         const result = await Swal.fire({
           title: "No eres conductor",
           text: "¿Quieres ser conductor?",
@@ -42,12 +50,12 @@ const ManageTrips = () => {
         });
 
         if (result.isConfirmed) {
-          navigate("/add-vehicle"); // Redirigir a añadir vehículo
+          navigate("/add-vehicle");
         } else {
-          navigate("/trip-list"); // Redirigir a la lista de viajes si cancela
+          navigate("/trip-list");
         }
 
-        setIsDriver(false); // Cambiar a modo pasajero
+        setIsDriver(false);
       } else {
         const data = await response.json();
         setTrips(data.trips || []);
@@ -59,6 +67,66 @@ const ManageTrips = () => {
       hasFetched.current = true;
     }
   }, [navigate]);
+
+  const handleEdit = (trip) => {
+    setEditingTrip(trip.tripId);
+    // Configura el formulario vacío y reinicia la hora de salida
+    setEditForm({
+      initialPoint: "",
+      finalPoint: "",
+      route: "", // Campo de ruta vacío
+      seats: "",
+      price: ""
+    });
+    setDepartureTime(""); // Limpia la hora de salida para que esté en blanco
+  };
+
+  const handleEditSubmit = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `https://wheels-backend-rafaelsavas-projects.vercel.app/api/trip/${editingTrip}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...editForm,
+            hour: departureTime, // Incluye la hora de salida en el cuerpo de la solicitud
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Error al actualizar el viaje.");
+      }
+
+      const data = await response.json();
+      setTrips((prevTrips) =>
+        prevTrips.map((trip) =>
+          trip.tripId === editingTrip ? data.updatedTrip : trip
+        )
+      );
+
+      setEditingTrip(null);
+      await Swal.fire({
+        icon: "success",
+        title: "El viaje ha sido actualizado exitosamente.",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    } catch (error) {
+      console.error("Error al actualizar el viaje:", error);
+
+      Swal.fire({
+        icon: "error",
+        title: "Error al actualizar",
+        text: "Hubo un problema al intentar actualizar el viaje.",
+      });
+    }
+  };
 
   const handleDelete = async (tripId) => {
     const result = await Swal.fire({
@@ -89,9 +157,6 @@ const ManageTrips = () => {
           throw new Error("Error al cancelar el viaje.");
         }
 
-        const data = await response.json();
-        console.log(data.message);
-
         setTrips((prevTrips) =>
           prevTrips.filter((trip) => trip.tripId !== tripId)
         );
@@ -116,7 +181,7 @@ const ManageTrips = () => {
 
   const toggleDriverMode = () => {
     setIsDriver(!isDriver);
-    if(isDriver){
+    if (isDriver) {
       navigate("/trip-list");
     }
   };
@@ -128,7 +193,7 @@ const ManageTrips = () => {
         onMenuClick={() => setSidebarOpen(true)}
       />
 
-      <div className="min-h-screen bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] p-6">
+      <div className={`min-h-screen bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] p-6 ${editingTrip ? "opacity-50" : ""}`}>
         <div className="flex justify-between">
           <h1 className="text-2xl font-bold text-white mb-6">Gestionar Viajes</h1>
           <div>
@@ -164,7 +229,6 @@ const ManageTrips = () => {
             Registra un nuevo viaje
           </CustomButton>
         </div>
-        
 
         {trips.length > 0 ? (
           trips.map((trip) => (
@@ -184,7 +248,7 @@ const ManageTrips = () => {
 
               <div className="flex justify-between">
                 <button
-                  onClick={() => handleEdit(trip.tripId)}
+                  onClick={() => handleEdit(trip)}
                   className="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg mr-2"
                 >
                   Editar
@@ -204,6 +268,82 @@ const ManageTrips = () => {
         )}
         {sidebarOpen && <Sidebar onClose={() => setSidebarOpen(false)} isDriver={true} />}
       </div>
+
+      {editingTrip && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-80">
+            <h2 className="text-xl font-bold mb-4 text-center">Editar Viaje</h2>
+            <form>
+              <input
+                type="text"
+                placeholder="Punto de inicio"
+                value={editForm.initialPoint}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, initialPoint: e.target.value })
+                }
+                className="w-full p-2 mb-4 border rounded"
+              />
+              <input
+                type="text"
+                placeholder="Punto final"
+                value={editForm.finalPoint}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, finalPoint: e.target.value })
+                }
+                className="w-full p-2 mb-4 border rounded"
+              />
+              <input
+                type="text"
+                placeholder="Ruta" // Nuevo campo para la ruta
+                value={editForm.route}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, route: e.target.value })
+                }
+                className="w-full p-2 mb-4 border rounded"
+              />
+              <input
+                type="time"
+                className="w-full p-2 mb-4 border rounded-lg"
+                value={departureTime}
+                onChange={(e) => setDepartureTime(e.target.value)}
+              />
+              <input
+                type="number"
+                placeholder="Cupos"
+                value={editForm.seats}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, seats: e.target.value })
+                }
+                className="w-full p-2 mb-4 border rounded"
+              />
+              <input
+                type="number"
+                placeholder="Tarifa"
+                value={editForm.price}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, price: e.target.value })
+                }
+                className="w-full p-2 mb-4 border rounded"
+              />
+              <div className="flex justify-between mt-6 space-x-4 w-full">
+                <CustomButton
+                  onClick={() => setEditingTrip(null)}
+                  className="bg-white text-orange-500 border border-orange-500 hover:bg-gray-100 text-center py-2 rounded-lg flex-1"
+                >
+                  Volver
+                </CustomButton>
+                <button
+                  type="button"
+                  onClick={handleEditSubmit}
+                  className="bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-lg flex-1"
+                >
+                  Guardar Cambios
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </>
   );
 };

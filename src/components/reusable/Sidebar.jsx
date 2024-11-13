@@ -63,12 +63,6 @@ const Sidebar = ({ onClose, isDriver }) => {
           <ul className="mt-4 space-y-2">
             {isDriver ? (
               <>
-                <li className="py-2 text-blue-700 font-semibold cursor-pointer" onClick={() => navigate('/add-trip')}>
-                  Registrar Viaje
-                </li>
-                <li className="py-2 text-blue-700 font-semibold cursor-pointer" onClick={() => navigate('/trips-registered')}>
-                  Ver viajes registrados
-                </li>
                 <li className="py-2 text-blue-700 font-semibold cursor-pointer" onClick={() => navigate('/view-vehicle')}>
                   Ver Auto registrado
                 </li>
