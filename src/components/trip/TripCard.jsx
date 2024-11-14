@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Users, DollarSign } from 'lucide-react';
+import { MapPin, Users, DollarSign, Clock } from 'lucide-react';
 
 const TripCard = ({ trip }) => {
   const navigate = useNavigate(); // Hook para navegación
@@ -8,6 +8,7 @@ const TripCard = ({ trip }) => {
   const handleDetailsClick = () => {
     navigate(`/trip-details/${trip.tripId}`); // Redirigir con el tripId
   };
+
   return (
     <div className="bg-white p-6 rounded-lg shadow-md mb-4 border border-gray-200">
       {/* Encabezado con puntos de inicio y fin */}
@@ -25,10 +26,16 @@ const TripCard = ({ trip }) => {
       {/* Detalles del viaje */}
       <p className="text-gray-700 mb-2"><strong>Ruta:</strong> {trip.route}</p>
       
-      {/* Información de cupos y tarifa */}
+      {/* Información de cupos, hora de salida y tarifa */}
       <div className="flex items-center mb-4">
         <Users className="text-gray-500 mr-2" />
         <p className="text-gray-700 mr-4">Cupos: {trip.seatsAvailable}</p>
+      </div>
+      <div className="flex items-center mb-4">
+        <Clock className="text-gray-500 mr-2" />
+        <p className="text-gray-700 mr-4">Hora de salida: {trip.hour}</p>
+      </div>
+      <div className="flex items-center mb-4">
         <DollarSign className="text-gray-500 mr-2" />
         <p className="text-gray-700">Tarifa: {trip.price.toLocaleString()}</p>
       </div>

@@ -14,6 +14,7 @@ import ManageTrips from './components/driver/ManageTrips'; // Importa el nuevo c
 import MyReservations from './components/passengerBar/Reservations';
 import RegisterTrip from './components/driver/RegisterTrip';
 import EditReservation from './components/passengerBar/EditReservation';
+import ViewVehicle from './components/driver/ViewVehicle';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
           <Route path="/my-reservations" element={<MyReservations />} />
           <Route path="/register-trip" element={<RegisterTrip />} />
           <Route path="/edit-reservation/:tripId" element={<EditReservation />} />
+          <Route path="/view-vehicle/:vehicleId" element={<ViewVehicle />} />
         </Routes>
       </Router>
     </UserProvider>

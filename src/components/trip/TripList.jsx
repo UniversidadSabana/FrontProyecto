@@ -54,7 +54,8 @@ const TripList = () => {
     const filtered = trips.filter(trip => {
       const matchSeats = minSeats === '' || trip.seatsAvailable >= parseInt(minSeats);
       const matchDeparture = departurePoint === '' || trip.initialPoint.toLowerCase().includes(departurePoint.toLowerCase());
-      return matchSeats && matchDeparture;
+      const hasAvailableSeats = trip.seatsAvailable > 0; // Verificar que haya cupos disponibles
+      return matchSeats && matchDeparture && hasAvailableSeats;
     });
     setFilteredTrips(filtered);
   };
