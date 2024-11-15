@@ -13,7 +13,6 @@ const TripDetails = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Opciones de paradas para las rutas "Autonorte" y "Boyacá"
   const autonorteStops = [
     "Calle 82", "Calle 85", "Calle 100", "Calle 106", "Calle 116", "Calle 127",
     "Prado", "Alcalá", "Calle 142", "Calle 146", "Mazurén", "Cardio Infantil",
@@ -27,14 +26,40 @@ const TripDetails = () => {
     "Calle 170", "Uniagraria"
   ];
 
-  // Filtrar paradas en función del número de calle en `initialPoint`
-  const getFilteredStops = (route, initialPoint) => {
-    const routeStops = route === "Autonorte" ? autonorteStops : boyacaStops;
+  const novenaStops = [
+    "Av 9 Calle 101", "Av 9 Calle 106", "Av 9 Calle 116", "Av 9 Calle 127", "Av 9 Calle 134", 
+    "Av 9 Calle 140", "Av 9 Calle 147", "Av 9 Calle 153", "Av 9 Calle 163", "Av 9 Calle 166", "Av 9 Calle 170"
+  ];
 
-    // Extraer el número de calle si está presente
-    const match = initialPoint.match(/\bCalle\s(\d+)/i);
+  const subaStops = [
+    "Suba ETB", "Suba Gym Cra 109A # 134-73", "Suba Portal Suba", "Suba C.C Plaza Imperial", 
+    "Suba Cll 148 Cra 92", "Suba Cra 92 con Cll 142", "Suba Cll 154 Conjunto Almeria", 
+    "Suba Biblioteca Julio Mario Santodomingo"
+  ];
+
+  const getFilteredStops = (route, initialPoint) => {
+    let routeStops;
+
+    switch (route) {
+      case "Autonorte":
+        routeStops = autonorteStops;
+        break;
+      case "Boyaca":
+        routeStops = boyacaStops;
+        break;
+      case "Novena":
+        routeStops = novenaStops;
+        break;
+      case "Suba":
+        routeStops = subaStops;
+        break;
+      default:
+        return [];
+    }
+
+    const match = initialPoint.match(/\bCalle\s(\d+)|\bAv\s9\sCalle\s(\d+)/i);
     if (match) {
-      const initialStreet = `Calle ${match[1]}`;
+      const initialStreet = match[0];
       const startIndex = routeStops.findIndex(stop => stop.includes(initialStreet));
       return startIndex !== -1 ? routeStops.slice(startIndex) : routeStops;
     }
@@ -171,7 +196,6 @@ const TripDetails = () => {
             </select>
           </div>
 
-          {/* Menús desplegables de paradas según el número de cupos */}
           {Array.from({ length: seatsReserved }).map((_, index) => (
             <div key={index}>
               <label className="block text-gray-700">Parada {index + 1}</label>
