@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import {useUser} from '../auth/UserContext';
+import { useUser } from '../auth/UserContext';
 import { useNavigate } from 'react-router-dom';
 import NavigationBar from '../reusable/NavigationBar';
 import Sidebar from '../reusable/Sidebar';
 import TripCard from './TripCard';
+import '../reusable/Loader.css';
 
 const TripList = () => {
-  const {user, setUser} = useUser();
+  const { user, setUser } = useUser();
   const [trips, setTrips] = useState([]);
   const [filteredTrips, setFilteredTrips] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [minSeats, setMinSeats] = useState('');
   const [departurePoint, setDeparturePoint] = useState('');
   const [isDriver, setIsDriver] = useState(false); // Estado para el modo de usuario
+  const [loading, setLoading] = useState(true); // Estado para el loader
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,19 +26,21 @@ const TripList = () => {
         return;
       }
 
+      setLoading(true); // Mostrar loader al iniciar la solicitud
       const response = await fetch('https://wheels-backend-rafaelsavas-projects.vercel.app/api/trips', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
+
       if (response.status === 401 || response.status === 403) {
         navigate('/login');
       } else {
-
         const data = await response.json();
         setTrips(data.trips);
         setFilteredTrips(data.trips); // Inicialmente, no hay filtros aplicados
       }
+      setLoading(false); // Ocultar loader al finalizar la solicitud
     };
 
     fetchTrips();
@@ -130,13 +134,22 @@ const TripList = () => {
           </div>
         </div>
 
-        {/* Listado de viajes */}
-        {filteredTrips.length > 0 ? (
-          filteredTrips.map((trip) => (
-            <TripCard key={trip.tripId} trip={trip} />
-          ))
+        {/* Loader */}
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="loader"></div>
+          </div>
         ) : (
-          <p>No hay viajes disponibles</p>
+          // Listado de viajes
+          filteredTrips.length > 0 ? (
+            filteredTrips.map((trip) => (
+              <TripCard key={trip.tripId} trip={trip} />
+            ))
+          ) : (
+            <div className='flex justify-center'>
+            <p className='text-white text-2xl font-bold'>No hay viajes disponibles</p>
+            </div>
+          )
         )}
 
         {/* Sidebar */}

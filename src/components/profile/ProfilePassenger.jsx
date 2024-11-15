@@ -206,7 +206,7 @@ const ProfilePassenger = () => {
 
             {error && <p className="text-red-500 text-sm">{error}</p>}
 
-            <div className="flex justify-end mt-6">
+            <div className="flex justify-end gap-8 mt-6">
             <CustomButton
               onClick={() => navigate("/trip-list")}
               className="bg-white text-orange-500 border border-orange-500 hover:bg-gray-100 text-center px-6 py-2 rounded-lg"

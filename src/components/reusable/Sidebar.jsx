@@ -35,7 +35,7 @@ const Sidebar = ({ onClose, isDriver }) => {
   };
 
   if (!profile) {
-    return <p>Cargando...</p>;
+    return;
   }
 
   return (

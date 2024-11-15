@@ -6,13 +6,13 @@ import CustomInput from "../reusable/CustomInput";
 import CustomButton from "../reusable/CustomButton";
 import LinkText from "../reusable/LinkText";
 import Swal from 'sweetalert2';
-import { Eye, EyeOff } from 'lucide-react'; // Importa los iconos de Lucide
+import { Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
   const { user, setUser } = useUser();
   const [mail, setMail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // Estado para mostrar/ocultar contraseña
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -112,13 +112,13 @@ const Login = () => {
           value={mail}
           onChange={(e) => setMail(e.target.value)}
         />
-        <div className="relative">
-          <CustomInput
-            type={showPassword ? "text" : "password"} // Cambia el tipo según el estado
+        <div className="relative w-full mx-auto">
+          <input
+            type={showPassword ? "text" : "password"}
             placeholder="Contraseña"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            
+            className="w-full border border-gray-300 rounded-lg px-5 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button
             type="button"

@@ -90,11 +90,17 @@ const RegisterTrip = () => {
           </div>
           <div>
             <label className="block text-gray-700">Ruta</label>
-            <textarea
-              className="w-full p-2 border rounded-lg"
+            <select
+              className="w-full p-2  border rounded-lg bg-white"
               value={route}
               onChange={(e) => setRoute(e.target.value)}
-            ></textarea>
+            >
+              <option value="">Selecciona una ruta</option>
+              <option value="Boyaca">Boyacá</option>
+              <option value="Autonorte">Autonorte</option>
+              <option value="Novena">Novena</option>
+              <option value="Suba">Suba</option>
+            </select>
           </div>
           <div>
             <label className="block text-gray-700">Hora de salida</label>
