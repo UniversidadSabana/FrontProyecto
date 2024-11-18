@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2'; // Importar SweetAlert2
 import CustomInput from '../reusable/CustomInput';
 import CustomButton from '../reusable/CustomButton';
 import { Camera } from 'lucide-react';
 import { useUser } from '../auth/UserContext';
-import Modal from '../reusable/Modal';
 
 const ProfilePassenger = () => {
   const { user, setUser } = useUser();
@@ -13,8 +13,6 @@ const ProfilePassenger = () => {
   const [contactNumber, setContactNumber] = useState('');
   const [image, setImage] = useState(null);
   const [error, setError] = useState('');
-  const [modalMessage, setModalMessage] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
@@ -37,8 +35,9 @@ const ProfilePassenger = () => {
         });
 
         if (response.status === 401 || response.status === 403) {
-          navigate('/login');}
-          
+          navigate('/login');
+        }
+
         if (!response.ok) {
           throw new Error(`Error HTTP: ${response.status}`);
         }
@@ -51,7 +50,6 @@ const ProfilePassenger = () => {
         setContactNumber(data.contactNumber || '');
         setLastName(data.lastName || '');
         setName(data.name || '');
-
       } catch (error) {
         setError('Error al cargar el perfil');
         console.error('Error al cargar el perfil:', error);
@@ -86,7 +84,6 @@ const ProfilePassenger = () => {
 
     console.log('Datos actualizados:', updatedUser);
     setUser(updatedUser);
-    setModalMessage('Perfil actualizado con éxito.');
 
     try {
       const response = await fetch(
@@ -104,25 +101,32 @@ const ProfilePassenger = () => {
       if (!response.ok) {
         const errorText = await response.json();
         console.error("Error en el backend:", errorText);
-        setModalMessage(
-          `Ocurrió un error al registrar el perfil. ${errorText.error}`
-        );
-        setIsModalOpen(true);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: `Ocurrió un error al actualizar el perfil. ${errorText.error || ''}`,
+        });
         return;
       }
 
       const data = await response.json();
       console.log("Respuesta del backend:", data);
 
-      setModalMessage("El perfil se ha actualizado correctamente.");
-      setIsModalOpen(true);
-      setTimeout(() => navigate("/trip-list"), 2000);
+      Swal.fire({
+        icon: 'success',
+        title: 'Perfil actualizado',
+        text: 'El perfil se ha actualizado correctamente.',
+        timer: 2000,
+        showConfirmButton: false,
+        willClose: () => navigate("/trip-list"),
+      });
     } catch (error) {
       console.error("Error al enviar los datos:", error);
-      setModalMessage(
-        "Ocurrió un error al registrar el perfil. Inténtalo de nuevo."
-      );
-      setIsModalOpen(true);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Ocurrió un error al actualizar el perfil. Inténtalo de nuevo.',
+      });
     }
   };
 
@@ -207,12 +211,12 @@ const ProfilePassenger = () => {
             {error && <p className="text-red-500 text-sm">{error}</p>}
 
             <div className="flex justify-end gap-8 mt-6">
-            <CustomButton
-              onClick={() => navigate("/trip-list")}
-              className="bg-white text-orange-500 border border-orange-500 hover:bg-gray-100 text-center px-6 py-2 rounded-lg"
-            >
-              Volver
-            </CustomButton>
+              <CustomButton
+                onClick={() => navigate("/trip-list")}
+                className="bg-white text-orange-500 border border-orange-500 hover:bg-gray-100 text-center px-6 py-2 rounded-lg"
+              >
+                Volver
+              </CustomButton>
               <CustomButton
                 onClick={handleSubmit}
                 className="bg-orange-500 hover:bg-orange-600 text-white"
@@ -223,12 +227,6 @@ const ProfilePassenger = () => {
           </form>
         </div>
       </div>
-
-      <Modal
-        message={modalMessage}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
     </div>
   );
 };

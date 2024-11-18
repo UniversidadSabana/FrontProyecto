@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import NavigationBar from '../reusable/NavigationBar';
 import Sidebar from '../reusable/Sidebar';
 import TripCard from './TripCard';
-import '../reusable/Loader.css';
+import '../reusable/loader.css';
 
 const TripList = () => {
   const { user, setUser } = useUser();
