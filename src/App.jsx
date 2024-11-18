@@ -13,9 +13,8 @@ import ProfilePassenger from './components/profile/ProfilePassenger';
 import ManageTrips from './components/driver/ManageTrips'; // Importa el nuevo componente
 import MyReservations from './components/passengerBar/Reservations';
 import RegisterTrip from './components/driver/RegisterTrip';
-import EditReservation from './components/passengerBar/EditReservation';
 import ViewVehicle from './components/driver/ViewVehicle';
-
+import EditVehicle from './components/driver/EditVehicle';
 function App() {
   return (
     <UserProvider>
@@ -33,8 +32,8 @@ function App() {
           <Route path="/manage-trips" element={<ManageTrips />} /> {/* Nueva ruta */}
           <Route path="/my-reservations" element={<MyReservations />} />
           <Route path="/register-trip" element={<RegisterTrip />} />
-          <Route path="/edit-reservation/:tripId" element={<EditReservation />} />
-          <Route path="/view-vehicle/:vehicleId" element={<ViewVehicle />} />
+          <Route path='/view-vehicle' element={<ViewVehicle/>} />
+          <Route path='/edit-vehicle' element={<EditVehicle/>} />
         </Routes>
       </Router>
     </UserProvider>

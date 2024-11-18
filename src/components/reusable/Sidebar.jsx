@@ -61,20 +61,21 @@ const Sidebar = ({ onClose, isDriver }) => {
           </h2>
           <p className="text-blue-700 text-sm text-center">{profile.mail}</p>
           <ul className="mt-4 space-y-2">
-            {isDriver ? (
-              <>
-                <li className="py-2 text-blue-700 font-semibold cursor-pointer" onClick={() => navigate('/view-vehicle')}>
-                  Ver Auto registrado
-                </li>
-              </>
+          {isDriver ? (
+           <>
+              {console.log('Modo Conductor: ', isDriver)}
+              <li className="py-2 text-blue-700 font-semibold cursor-pointer" onClick={() => navigate('/view-vehicle')}>
+                Ver Auto registrado
+              </li>
+            </>
             ) : (
               <>
-                
                 <li className="py-2 text-blue-700 font-semibold cursor-pointer" onClick={() => navigate('/my-reservations')}>
                   Gestionar Viajes
                 </li>
               </>
             )}
+
             <li className="py-2 text-blue-700 font-semibold cursor-pointer" onClick={() => navigate('/profile-passenger')}>
               Perfil
             </li>

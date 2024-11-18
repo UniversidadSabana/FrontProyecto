@@ -12,7 +12,7 @@ const TripList = () => {
   const [filteredTrips, setFilteredTrips] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [minSeats, setMinSeats] = useState('');
-  const [departurePoint, setDeparturePoint] = useState('');
+  const [route, setRoute] = useState(''); // Cambiado a "route" en lugar de "departurePoint"
   const [isDriver, setIsDriver] = useState(false); // Estado para el modo de usuario
   const [loading, setLoading] = useState(true); // Estado para el loader
   const navigate = useNavigate();
@@ -20,28 +20,32 @@ const TripList = () => {
   useEffect(() => {
     const fetchTrips = async () => {
       const token = localStorage.getItem('token');
-      
+    
       if (!token) {
         navigate('/login');
         return;
       }
-
+    
       setLoading(true); // Mostrar loader al iniciar la solicitud
       const response = await fetch('https://wheels-backend-rafaelsavas-projects.vercel.app/api/trips', {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          'Authorization': `Bearer ${token}`,
+        },
       });
-
+    
       if (response.status === 401 || response.status === 403) {
         navigate('/login');
       } else {
         const data = await response.json();
-        setTrips(data.trips);
-        setFilteredTrips(data.trips); // Inicialmente, no hay filtros aplicados
+    
+        // Insertar nuevos viajes al principio manualmente
+        const updatedTrips = [...data.trips].reverse(); // Si no hay `createdAt`, invertir la lista para simular orden descendente
+        setTrips(updatedTrips); // Guardar los viajes actualizados con el más reciente al inicio
+        setFilteredTrips(updatedTrips); // Aplicar a los viajes filtrados
       }
       setLoading(false); // Ocultar loader al finalizar la solicitud
     };
+    
 
     fetchTrips();
   }, [navigate]);
@@ -57,9 +61,9 @@ const TripList = () => {
   const filterTrips = () => {
     const filtered = trips.filter(trip => {
       const matchSeats = minSeats === '' || trip.seatsAvailable >= parseInt(minSeats);
-      const matchDeparture = departurePoint === '' || trip.initialPoint.toLowerCase().includes(departurePoint.toLowerCase());
+      const matchRoute = route === '' || trip.route.toLowerCase().includes(route.toLowerCase()); // Filtrar por rutas
       const hasAvailableSeats = trip.seatsAvailable > 0; // Verificar que haya cupos disponibles
-      return matchSeats && matchDeparture && hasAvailableSeats;
+      return matchSeats && matchRoute && hasAvailableSeats;
     });
     setFilteredTrips(filtered);
   };
@@ -67,7 +71,7 @@ const TripList = () => {
   // Aplicar los filtros cada vez que cambien los valores
   useEffect(() => {
     filterTrips();
-  }, [minSeats, departurePoint, trips]);
+  }, [minSeats, route, trips]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6]">
@@ -120,16 +124,20 @@ const TripList = () => {
               </select>
             </div>
 
-            {/* Filtro de puntos de salida */}
+            {/* Filtro de rutas */}
             <div>
-              <label className="block text-gray-700 mb-2">Puntos de salida</label>
-              <input
-                type="text"
-                placeholder="Buscar puntos de salida"
+              <label className="block text-gray-700 mb-2">Rutas</label>
+              <select
                 className="w-full p-2 border rounded-lg"
-                value={departurePoint}
-                onChange={e => setDeparturePoint(e.target.value)}
-              />
+                value={route}
+                onChange={e => setRoute(e.target.value)}
+              >
+                <option value="">Selecciona una ruta</option>
+                <option value="autonorte">Autonorte</option>
+                <option value="boyaca">Boyacá</option>
+                <option value="suba">Suba</option>
+                <option value="novena">Novena</option>
+              </select>
             </div>
           </div>
         </div>
@@ -147,7 +155,7 @@ const TripList = () => {
             ))
           ) : (
             <div className='flex justify-center'>
-            <p className='text-white text-2xl font-bold'>No hay viajes disponibles</p>
+              <p className='text-white text-2xl font-bold'>No hay viajes disponibles</p>
             </div>
           )
         )}

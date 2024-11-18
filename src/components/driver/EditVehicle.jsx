@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import Swal from 'sweetalert2'; // Importar SweetAlert2
+import Swal from 'sweetalert2'; // Para la alerta de éxito
 import CustomInput from '../reusable/CustomInput';
 import CustomButton from '../reusable/CustomButton';
 import { Camera } from 'lucide-react';
-import { useUser } from '../auth/UserContext';
-import Modal from '../reusable/Modal';
 import { useNavigate } from 'react-router-dom';
 
-const AddVehicle = () => {
-  const { user } = useUser();
+const EditVehicle = () => {
   const [vehicleImage, setVehicleImage] = useState(null);
   const [soatImage, setSoatImage] = useState(null);
   const [plate, setPlate] = useState('');
@@ -16,22 +13,38 @@ const AddVehicle = () => {
   const [brand, setBrand] = useState('');
   const [model, setModel] = useState('');
   const [color, setColor] = useState('');
-  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Verificar si el usuario está presente, si no, redirigir a '/login'
   useEffect(() => {
-    if (!user || !user.id) {
+    // Cargar los datos del vehículo al montar el componente
+    const fetchVehicle = async () => {
       try {
-        const userId = JSON.parse(atob(localStorage.getItem('token').split('.')[1])).id;
-        if (!userId) {
-          navigate('/login');
+        const token = localStorage.getItem('token');
+        const response = await fetch('https://wheels-backend-rafaelsavas-projects.vercel.app/api/vehicle', {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('No se pudo cargar la información del vehículo.');
         }
-      } catch {
-        navigate('/login');
+
+        const data = await response.json();
+        setPlate(data.vehicle.carPlate);
+        setCapacity(data.vehicle.capacity);
+        setBrand(data.vehicle.brand);
+        setModel(data.vehicle.model);
+        setColor(data.vehicle.color);
+      } catch (error) {
+        console.error('Error al cargar los datos del vehículo:', error);
+        navigate('/manage-trips'); // Redirigir si no se pueden cargar los datos
       }
-    }
-  }, [user, navigate]);
+    };
+
+    fetchVehicle();
+  }, [navigate]);
 
   const uploadToCloudinary = async (file) => {
     const formData = new FormData();
@@ -66,28 +79,33 @@ const AddVehicle = () => {
 
   const handleSubmit = async () => {
     if (!plate || !capacity || !brand || !model || !color || !vehicleImage || !soatImage) {
-      setError('Todos los campos son obligatorios');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Todos los campos son obligatorios.',
+      });
       return;
     }
 
-    const vehicleData = {
-      userId: user.id,
-      carPlate: plate,
-      capacity,
+    const updatedVehicleData = {
       brand,
       model,
+      carPlate: plate,
+      capacity,
       color,
       picture: vehicleImage,
       soat: soatImage,
     };
 
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch('https://wheels-backend-rafaelsavas-projects.vercel.app/api/vehicle', {
-        method: 'POST',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(vehicleData),
+        body: JSON.stringify(updatedVehicleData),
       });
 
       if (!response.ok) {
@@ -95,26 +113,26 @@ const AddVehicle = () => {
         Swal.fire({
           icon: 'error',
           title: 'Error',
-          text: `Ocurrió un error al registrar el vehículo. ${errorText.error}`,
+          text: `No se pudo actualizar el vehículo. ${errorText.message || ''}`,
         });
         return;
       }
 
-      // Mostrar SweetAlert de éxito
+      const result = await response.json();
       Swal.fire({
         icon: 'success',
-        title: 'Vehículo agregado exitosamente',
-        text: 'Redirigiendo...',
+        title: 'Éxito',
+        text: result.message || 'Vehículo actualizado exitosamente.',
         timer: 2000,
         showConfirmButton: false,
-        willClose: () => navigate('/trip-list'), // Redirige al cerrar la alerta
+        willClose: () => navigate('/manage-trips'),
       });
     } catch (error) {
-      console.error('Error al enviar los datos:', error);
+      console.error('Error al actualizar el vehículo:', error);
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Ocurrió un error al registrar el vehículo. Inténtalo de nuevo.',
+        text: 'Ocurrió un error al guardar los cambios. Inténtalo de nuevo.',
       });
     }
   };
@@ -122,9 +140,10 @@ const AddVehicle = () => {
   return (
     <div className="flex items-center justify-center py-20 h-[screen] bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] font-inter">
       <div className="bg-white px-10 py-14 rounded-3xl shadow-lg w-[80%] max-w-3xl">
-        <h2 className="text-4xl font-bold text-blue-800 mb-5">Agregar Vehículo</h2>
+        <h2 className="text-4xl font-bold text-blue-800 mb-5">Editar Vehículo</h2>
 
         <form className="flex flex-col gap-4">
+          {/* Foto del vehículo */}
           <div className="relative mb-5">
             <label htmlFor="vehicleImage" className="block text-sm font-medium text-gray-700">
               Foto del vehículo
@@ -168,6 +187,7 @@ const AddVehicle = () => {
             className="border rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 
+          {/* Foto del SOAT */}
           <div className="relative mb-5">
             <label htmlFor="soatImage" className="block text-sm font-medium text-gray-700">
               Foto del SOAT
@@ -193,11 +213,9 @@ const AddVehicle = () => {
             />
           </div>
 
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-
           <div className="flex justify-between mt-6">
             <CustomButton
-              onClick={() => navigate('/trip-list')}
+              onClick={() => navigate('/manage-trips')}
               className="bg-gray-500 hover:bg-gray-600 text-white"
             >
               Cancelar
@@ -215,4 +233,4 @@ const AddVehicle = () => {
   );
 };
 
-export default AddVehicle;
+export default EditVehicle;
