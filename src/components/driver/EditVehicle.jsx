@@ -148,9 +148,18 @@ const EditVehicle = () => {
             <label htmlFor="vehicleImage" className="block text-sm font-medium text-gray-700">
               Foto del vehículo
             </label>
-            <div className="w-full h-48 bg-gray-100 rounded-lg flex flex-col items-center justify-center overflow-hidden">
+            <div className="w-full h-48 bg-gray-100 rounded-lg flex flex-col items-center justify-center overflow-hidden relative">
               {vehicleImage ? (
-                <img src={vehicleImage} alt="Vehicle" className="w-full h-full object-cover" />
+                <>
+                  <img src={vehicleImage} alt="Vehicle" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                    onClick={() => setVehicleImage(null)}
+                  >
+                    Eliminar
+                  </button>
+                </>
               ) : (
                 <>
                   <Camera size={50} className="text-gray-500" />
@@ -192,9 +201,18 @@ const EditVehicle = () => {
             <label htmlFor="soatImage" className="block text-sm font-medium text-gray-700">
               Foto del SOAT
             </label>
-            <div className="w-full h-48 bg-gray-100 rounded-lg flex flex-col items-center justify-center overflow-hidden">
+            <div className="w-full h-48 bg-gray-100 rounded-lg flex flex-col items-center justify-center overflow-hidden relative">
               {soatImage ? (
-                <img src={soatImage} alt="SOAT" className="w-full h-full object-cover" />
+                <>
+                  <img src={soatImage} alt="SOAT" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                    onClick={() => setSoatImage(null)}
+                  >
+                    Eliminar
+                  </button>
+                </>
               ) : (
                 <>
                   <Camera size={50} className="text-gray-500" />
