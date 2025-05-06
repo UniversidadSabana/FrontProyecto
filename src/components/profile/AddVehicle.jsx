@@ -24,6 +24,7 @@ const AddVehicle = () => {
     if (!user || !user.id) {
       try {
         const userId = JSON.parse(atob(localStorage.getItem('token').split('.')[1])).id;
+        user.id = userId; // Asignar el userId al objeto user
         if (!userId) {
           navigate('/login');
         }
