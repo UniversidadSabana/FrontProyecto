@@ -1,0 +1,73 @@
+# .gitlab-ci.yml
+
+stages:
+  - install
+  - test
+  - e2e
+  - deploy       # opcional
+
+# 1) Cache de dependencias y de Cypress
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+    - ~/.cache/Cypress
+
+# 2) Instalación de dependencias
+install:
+  image: node:18-alpine
+  stage: install
+  script:
+    - npm ci
+  cache:
+    policy: pull-push
+
+# 3) Unit tests con Jest + React Testing Library
+jest:
+  image: node:18-alpine
+  stage: test
+  dependencies:
+    - install
+  script:
+    # ejecuta en modo CI (sin watch) y genera cobertura + reporte JUnit
+    - npm test -- --coverage --reporters=default --reporters=jest-junit
+  artifacts:
+    when: always
+    paths:
+      - coverage/
+    reports:
+      junit: junit.xml
+
+# 4) E2E con Cypress
+cypress:
+  image: cypress/included:12.0.0   # ajusta versión si es necesario
+  stage: e2e
+  dependencies:
+    - install
+  services: []                     # sin servicios adicionales
+  variables:
+    CYPRESS_baseUrl: "http://localhost:3000"
+  before_script:
+    # arranca tu app en segundo plano y espera a que responda
+    - npm run start &              
+    - npx wait-on http://localhost:3000
+  script:
+    - npm run cy:run               # lanza Cypress en headless, genera JUnit
+  artifacts:
+    when: always
+    paths:
+      - cypress/videos/
+      - cypress/screenshots/
+      - cypress/results/
+    reports:
+      junit: cypress/results/*.xml
+
+# 5) Deploy (opcional, por ejemplo a Netlify, S3, etc.)
+#deploy:
+ # image: node:18-alpine
+  #stage: deploy
+  #only:
+  #  - main
+  #script:
+  #  - npm run build
+  #  - echo "Aquí tus comandos de despliegue…"
