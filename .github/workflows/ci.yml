@@ -1,3 +1,4 @@
+# .github/workflows/ci.yml
 name: CI/CD Pipeline
 
 on:
@@ -16,10 +17,12 @@ jobs:
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
       - run: npm ci
 
   test:
-    name: Run Jest Tests
+    name: Run Jest Unit Tests
     runs-on: ubuntu-latest
     needs: install
     steps:
@@ -28,6 +31,8 @@ jobs:
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
       - run: npm test -- --coverage --watchAll=false --reporters=default --reporters=jest-junit
       - uses: actions/upload-artifact@v4
         with:
@@ -39,36 +44,50 @@ jobs:
           path: junit.xml
 
   e2e:
-    name: Run Cypress E2E
+    name: Run Cypress E2E Tests
     runs-on: ubuntu-latest
     needs: install
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/cache@v3
+
+      - name: Restore dependencies & Cypress cache
+        uses: actions/cache@v3
         with:
           path: |
             node_modules
             ~/.cache/Cypress
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-      - run: |
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install & start application
+        run: |
           npm ci
-          npm run dev & 
+          npm run dev &                  # start Vite on port 5173
           npx wait-on http://localhost:5173
         env:
           CI: true
-      - uses: cypress-io/github-action@v5
+
+      - name: Run Cypress tests
+        uses: cypress-io/github-action@v5
         with:
           browser: chrome
           record: false
-      - uses: actions/upload-artifact@v4
+
+      - name: Upload Cypress videos
+        uses: actions/upload-artifact@v4
         with:
           name: cypress-videos
           path: cypress/videos
-      - uses: actions/upload-artifact@v4
+
+      - name: Upload Cypress screenshots
+        uses: actions/upload-artifact@v4
         with:
           name: cypress-screenshots
           path: cypress/screenshots
-      - uses: actions/upload-artifact@v4
+
+      - name: Upload Cypress JUnit results
+        uses: actions/upload-artifact@v4
         with:
           name: cypress-junit
           path: cypress/results/*.xml
