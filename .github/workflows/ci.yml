@@ -1,16 +1,17 @@
 # .github/workflows/ci.yml
-name: CI/CD Pipeline
+name: Build and Test
 
 on:
   push:
     branches: [ main ]
   pull_request:
+    types: [opened, synchronize, reopened]
     branches: [ main ]
 
 jobs:
   install:
     name: Install Dependencies
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v3
@@ -22,8 +23,8 @@ jobs:
       - run: npm ci
 
   test:
-    name: Run Jest Unit Tests
-    runs-on: ubuntu-latest
+    name: Run Jest & Generate Coverage
+    runs-on: windows-latest
     needs: install
     steps:
       - uses: actions/checkout@v4
@@ -33,23 +34,21 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-      - run: npm test -- --coverage --watchAll=false --reporters=default --reporters=jest-junit
-      - uses: actions/upload-artifact@v4
+      - run: npm ci
+      - name: Run Jest with coverage
+        run: npm test -- --coverage --watchAll=false
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: coverage/
-      - uses: actions/upload-artifact@v4
-        with:
-          name: jest-junit
-          path: junit.xml
 
   e2e:
     name: Run Cypress E2E Tests
-    runs-on: ubuntu-latest
-    needs: install
+    runs-on: windows-latest
+    needs: test
     steps:
       - uses: actions/checkout@v4
-
       - name: Restore dependencies & Cypress cache
         uses: actions/cache@v3
         with:
@@ -59,46 +58,53 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-
       - name: Install & start application
+        shell: bash
         run: |
           npm ci
           npm run dev &
           npx wait-on http://localhost:5173
         env:
           CI: true
-
       - name: Run Cypress tests
         uses: cypress-io/github-action@v5
         with:
           browser: chrome
           record: false
-
       - name: Upload Cypress videos
         uses: actions/upload-artifact@v4
         with:
           name: cypress-videos
           path: cypress/videos
-
       - name: Upload Cypress screenshots
         uses: actions/upload-artifact@v4
         with:
           name: cypress-screenshots
           path: cypress/screenshots
-
       - name: Upload Cypress JUnit results
         uses: actions/upload-artifact@v4
         with:
           name: cypress-junit
           path: cypress/results/*.xml
-
       - name: Generate Allure Report
+        shell: bash
         run: |
-          npm install --no-save allure-commandline
           npx allure generate allure-results --clean -o allure-report
-
       - name: Upload Allure Report
         uses: actions/upload-artifact@v4
         with:
           name: allure-report
           path: allure-report
+
+  sonar:
+    name: SonarQube Analysis
+    runs-on: windows-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # disable shallow clone for full analysis
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
