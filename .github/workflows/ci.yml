@@ -111,7 +111,7 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         with:
           args: >
-            -Dsonar.projectKey=FrontProyecto
+            -Dsonar.projectKey=UniversidadSabana_FrontProyecto
             -Dsonar.sources=src
             -Dsonar.tests=src/components/__tests__
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
