@@ -157,18 +157,13 @@ describe('🗺️ ManageTrips E2E', () => {
     cy.contains('Inicio: U').should('not.exist')
   })
 
-  it('toggleDriverMode navega a /trip-list', () => {
+   it('toggleDriverMode navega a /trip-list', () => {
    cy.intercept('GET', tripsUrl, {
      statusCode: 200,
      body: { trips: [] },
    }).as('getEmpty')
 
-   // inyecta el token _antes_ de que React monte el componente
-   cy.visit('/manage-trips', {
-     onBeforeLoad(win) {
-       win.localStorage.setItem('token', 'token')
-     }
-   })
+   cy.visit('/manage-trips')
    cy.wait('@getEmpty')
 
    cy.get('input[type="checkbox"]').click({ force: true })
