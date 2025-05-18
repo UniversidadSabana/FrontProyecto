@@ -103,8 +103,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # disable shallow clone for full analysis
+          fetch-depth: 0    # sin shallow clone para análisis completo
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dsonar.projectKey=FrontProyecto
+            -Dsonar.sources=src
+            -Dsonar.tests=src/components/__tests__
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.exclusions=cypress/**,allure-report/**
+
