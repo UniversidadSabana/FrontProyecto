@@ -12,6 +12,15 @@ module.exports = {
       '^@/(.*)$': '<rootDir>/src/$1'
     },
     collectCoverage: true,
-    coverageDirectory: 'coverage'
-  }
-  s
+    coverageDirectory: 'coverage',
+    reporters: [
+    'default',
+    'jest-allure'
+  ], 
+
+  // Opciones para Allure: carpeta de salida de resultados
+  reporterOptions: {
+    allureResults: './allure-results'
+  } 
+}
+  
