@@ -9,19 +9,9 @@ describe('🚗 ViewVehicle E2E', () => {
   })
 
   it('muestra loader inicialmente', () => {
-  cy.intercept('GET', vehicleUrl, {
-    statusCode: 200,
-    body: { vehicle: null },   // da igual el body, sólo queremos que tarde un poco
-    delayMs: 1000              // 1 segundo de retraso
-  }).as('delayedVehicle');
-
-  cy.visit('/view-vehicle');
-
-  // Este texto lo muestra tu componente mientras loading === true :contentReference[oaicite:0]{index=0}:contentReference[oaicite:1]{index=1}
-  cy.contains('Cargando la información del vehículo.').should('be.visible');
-
-  // opcional: luego ya esperamos a que llegue la respuesta
-  cy.wait('@delayedVehicle');
+    cy.intercept('GET', vehicleUrl, req => {}).as('hangRequest')
+    cy.visit('/view-vehicle')
+    cy.contains('Cargando la información del vehículo...').should('be.visible')
   })
 
   it('redirige a /trip-list si fetch lanza error', () => {
