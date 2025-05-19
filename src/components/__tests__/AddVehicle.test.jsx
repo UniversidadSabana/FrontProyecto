@@ -1,20 +1,17 @@
-// src/components/__tests__/AddVehicle.test.jsx
 import React from 'react';
 import '@testing-library/jest-dom';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import AddVehicle from '../profile/AddVehicle';
 import { BrowserRouter } from 'react-router-dom';
 
-// Mock de useNavigate
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
 }));
 
-// Mock minimal de useUser para tener siempre un user.id y evitar redirect al login
 jest.mock('../auth/UserContext', () => ({
-  useUser: () => ({ user: { id: '1' } }),
+  useUser: () => ({ user: { id: '1' } })
 }));
 
 describe('AddVehicle', () => {
@@ -31,14 +28,11 @@ describe('AddVehicle', () => {
 
   it('renderiza todos los campos y botones del formulario', () => {
     setup();
-    // Inputs de texto :contentReference[oaicite:0]{index=0}:contentReference[oaicite:1]{index=1}
     expect(screen.getByPlaceholderText('Placa')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Marca')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Modelo')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Color')).toBeInTheDocument();
-    // Input numérico por label
     expect(screen.getByLabelText('Capacidad')).toBeInTheDocument();
-    // Botones
     expect(screen.getByText('Cancelar')).toBeInTheDocument();
     expect(screen.getByText('Guardar Vehículo')).toBeInTheDocument();
   });
@@ -53,5 +47,20 @@ describe('AddVehicle', () => {
     setup();
     fireEvent.click(screen.getByText('Cancelar'));
     expect(mockNavigate).toHaveBeenCalledWith('/trip-list');
+  });
+
+  it('actualiza valores del formulario correctamente', () => {
+    setup();
+    fireEvent.change(screen.getByPlaceholderText('Placa'), { target: { value: 'ABC123' } });
+    fireEvent.change(screen.getByPlaceholderText('Marca'), { target: { value: 'Mazda' } });
+    fireEvent.change(screen.getByPlaceholderText('Modelo'), { target: { value: '2020' } });
+    fireEvent.change(screen.getByPlaceholderText('Color'), { target: { value: 'Rojo' } });
+    fireEvent.change(screen.getByLabelText('Capacidad'), { target: { value: 4 } });
+
+    expect(screen.getByDisplayValue('ABC123')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Mazda')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('2020')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Rojo')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('4')).toBeInTheDocument();
   });
 });
