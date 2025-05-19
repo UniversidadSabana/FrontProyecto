@@ -9,9 +9,17 @@ describe('🚗 ViewVehicle E2E', () => {
   })
 
   it('muestra loader inicialmente', () => {
-    cy.intercept('GET', vehicleUrl, req => {}).as('hangRequest')
-    cy.visit('/view-vehicle')
-    cy.contains('Cargando la información del vehículo...').should('be.visible')
+  cy.intercept('GET', vehicleUrl, {
+    statusCode: 200,
+    body: { vehicle: null },       // lo que quieras devolver luego
+    delayMs: 2000                  // 2 segundos de retraso
+  }).as('delayedRequest');
+
+  cy.visit('/view-vehicle');
+
+  // Ahora el loader se renderiza antes de la respuesta
+  cy.contains('Cargando la información del vehículo...')
+    .should('be.visible');
   })
 
   it('redirige a /trip-list si fetch lanza error', () => {
