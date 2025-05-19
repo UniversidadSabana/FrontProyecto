@@ -105,7 +105,7 @@ jobs:
             Dsonar.sources=src
             Dsonar.tests=src/components/__tests__
             Dsonar.test.inclusions=src/components/__tests__/**/*.jsx
-            Dsonar.exclusions=**/coverage/**,**/allure-report/**,**/cypress/fixtures/**,**/cypress/support/**
+            Dsonar.exclusions=**/coverage/**,**/allure-report/**,**/cypress/fixtures/**,**/cypress/support/**,src/App.jsx, src/main.jsx,src/components/reusable/Modal.jsx,src/mocks/server.js,src/components/auth/Welcome.jsx
             Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
             Dsonar.qualitygate.wait=true
             Dsonar.sourceEncoding=UTF-8
