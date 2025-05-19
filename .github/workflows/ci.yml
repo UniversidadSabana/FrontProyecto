@@ -95,12 +95,12 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         with:
           organization: UniversidadSabana
-          projectKey: FrontProyecto
+          projectKey: UniversidadSabana_FrontProyecto
           projectBaseDir: .
           extraArgs: >
             -Dsonar.sources=src
             -Dsonar.tests=src/components/**/__tests__/**
-            -Dsonar.exclusions=src/components/**/__tests__/**,cypress/**,allure-report/**,coverage/**
+            -Dsonar.exclusions=**/__tests__/**,**/*.test.jsx,cypress/**,coverage/**,allure-report/**
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
             -Dsonar.qualitygate.wait=true
             -Dsonar.sourceEncoding=UTF-8
