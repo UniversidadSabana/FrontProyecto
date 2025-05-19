@@ -1,5 +1,4 @@
-# .github/workflows/ci.yml
-name: Build and Test
+name: Build & Test & Analyze
 
 on:
   push:
@@ -10,7 +9,6 @@ on:
 
 jobs:
   install:
-    name: Install Dependencies
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,22 +16,17 @@ jobs:
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
       - run: npm ci
 
   test:
-    name: Run Jest & Generate Coverage
-    runs-on: ubuntu-latest
     needs: install
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v3
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
       - run: npm ci
       - name: Run Jest with coverage
         run: npm test -- --coverage --watchAll=false
@@ -44,21 +37,17 @@ jobs:
           path: coverage/
 
   e2e:
-    name: Run Cypress E2E Tests
-    runs-on: ubuntu-latest
     needs: test
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Restore dependencies & Cypress cache
-        uses: actions/cache@v3
+      - uses: actions/cache@v3
         with:
           path: |
             node_modules
             ~/.cache/Cypress
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-      - name: Install & start application
+      - name: Install & start app
         shell: bash
         run: |
           npm ci
@@ -71,49 +60,47 @@ jobs:
         with:
           browser: chrome
           record: false
-      - name: Upload Cypress videos
+      - name: Upload Cypress artifacts
         uses: actions/upload-artifact@v4
         with:
           name: cypress-videos
           path: cypress/videos
-      - name: Upload Cypress screenshots
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: cypress-screenshots
           path: cypress/screenshots
-      - name: Upload Cypress JUnit results
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: cypress-junit
           path: cypress/results/*.xml
-      - name: Generate Allure Report
+      - name: Generate Allure report
         shell: bash
-        run: |
-          npx allure generate allure-results --clean -o allure-report
-      - name: Upload Allure Report
-        uses: actions/upload-artifact@v4
+        run: npx allure generate allure-results --clean -o allure-report
+      - uses: actions/upload-artifact@v4
         with:
           name: allure-report
           path: allure-report
 
   sonar:
-    name: SonarQube Analysis
-    runs-on: ubuntu-latest
     needs: test
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0    # sin shallow clone para análisis completo
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5
+          fetch-depth: 0
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         with:
-          args: >
-            -Dsonar.projectKey=UniversidadSabana_FrontProyecto
+          organization: UniversidadSabana
+          projectKey: FrontProyecto
+          projectBaseDir: .
+          extraArgs: >
             -Dsonar.sources=src
-            -Dsonar.tests=src/components/__tests__
+            -Dsonar.tests=src/components/**/__tests__/**
+            -Dsonar.exclusions=src/components/**/__tests__/**,cypress/**,allure-report/**,coverage/**
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-            -Dsonar.exclusions=cypress/**,allure-report/**
-
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.sourceEncoding=UTF-8
