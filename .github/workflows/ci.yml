@@ -102,9 +102,10 @@ jobs:
           projectKey: UniversidadSabana_FrontProyecto
           projectBaseDir: .
           extraArgs: >
-            -Dsonar.sources=src
-            -Dsonar.tests=src/components/__tests__/**
-            -Dsonar.exclusions=**/coverage/**,**/allure-report/**,**/cypress/fixtures/**,**/cypress/support/**
-            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-            -Dsonar.qualitygate.wait=true
-            -Dsonar.sourceEncoding=UTF-8
+            Dsonar.sources=src
+            Dsonar.tests=src/components/__tests__
+            Dsonar.test.inclusions=src/components/__tests__/**/*.jsx
+            Dsonar.exclusions=**/coverage/**,**/allure-report/**,**/cypress/fixtures/**,**/cypress/support/**
+            Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+            Dsonar.qualitygate.wait=true
+            Dsonar.sourceEncoding=UTF-8
