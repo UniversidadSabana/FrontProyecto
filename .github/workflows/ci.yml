@@ -99,8 +99,8 @@ jobs:
           projectBaseDir: .
           extraArgs: >
             -Dsonar.sources=src
-            -Dsonar.tests=src/components/**/__tests__/**
-            -Dsonar.exclusions=**/__tests__/**,**/*.test.jsx,cypress/**,coverage/**,allure-report/**
+            -Dsonar.tests=src/components/**/__tests__/**/*,cypress/e2e/**/*
+            -Dsonar.exclusions=**/coverage/**,**/allure-report/**,**/cypress/fixtures/**,**/cypress/support/**
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
             -Dsonar.qualitygate.wait=true
             -Dsonar.sourceEncoding=UTF-8
